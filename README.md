@@ -4,7 +4,7 @@
 For lots of mathematical problems we need an ability to sample discrete random variables. 
 The problem is that due to continuos nature of deep learning optimization, the usage of truely discrete random variables is infeasible. 
 Thus we use different relaxation method. 
-One of them, [Concrete distribution](https://arxiv.org/abs/1611.01144) or [Gumbel-softmax](https://arxiv.org/abs/1611.00712) (this is one distribution proposed in parallel by two research groups) is implemented in different DL packages. 
+One of them, [Concrete distribution](https://arxiv.org/abs/1611.00712) or [Gumbel-softmax](https://arxiv.org/abs/1611.01144) (this is one distribution proposed in parallel by two research groups) is implemented in different DL packages. 
 In this project we implement different alternatives to it. 
 
 ## 🗃 Algorithms to implement (from simplest to hardest)
