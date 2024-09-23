@@ -7,7 +7,7 @@ Thus we use different relaxation method.
 One of them, [Concrete distribution](https://arxiv.org/abs/1611.01144) or [Gumbel-softmax](https://arxiv.org/abs/1611.00712) (this is one distribution proposed in parallel by two research groups) is implemented in different DL packages. 
 In this project we implement different alternatives to it. 
 
-## 🗃 Algorithms to implement (from simplets to hardest)
+## 🗃 Algorithms to implement (from simplest to hardest)
 - [ ] [Relaxed Bernoulli](http://proceedings.mlr.press/v119/yamada20a/yamada20a.pdf) 
 - [ ] [Correlated relaxed Bernoulli](https://openreview.net/pdf?id=oDFvtxzPOx)
 - [ ] [Gumbel-softmax TOP-K](https://arxiv.org/pdf/1903.06059) 
