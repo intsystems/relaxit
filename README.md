@@ -23,5 +23,11 @@ Some of the alternatives for GS were implemented in [pyro](https://docs.pyro.ai/
 ## 🧩 Problem details
 To make to library constistent, we integrate imports of distributions from pyro and pytorch into the library, so that all the categorial distributions can be imported from one entrypoint. 
 
+## 👥 Contributors
+- [Daniil Dorin](https://github.com/DorinDaniil) (Basic code writing, Final demo, Algorithms)
+- [Igor Ignashin](https://github.com/ThunderstormXX) (Project wrapping, Documentation writing, Algorithms)
+- [Nikita Kiselev](https://github.com/kisnikser) (Project planning, Blog post, Algorithms)
+- [Andrey Veprikov](https://github.com/Vepricov) (Tests writing, Documentation writing, Algorithms)
+
 ## 🔗 Other links
 - [About top-k GS](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/DL2/sampling/subsets.html) 
