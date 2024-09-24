@@ -1,8 +1,6 @@
-<div align="center">
-  
-<img src="assets/logo.svg" width="130em" />
-
-# Relax It Library
+<div align="center">  
+    <img src="assets/logo.svg" width="130em" />
+    <h1> Just Relax It </h1>
 </div>
 
 ## 💡 Motivation
