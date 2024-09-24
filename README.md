@@ -1,4 +1,9 @@
+<div align="center">
+  
+<img src="src/logo.svg" width="130em" />
+
 # Discrete variables relaxation
+</div>
 
 ## 💡 Motivation
 For lots of mathematical problems we need an ability to sample discrete random variables. 
