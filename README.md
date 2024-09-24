@@ -1,8 +1,8 @@
 <div align="center">
   
-<img src="src/logo.svg" width="130em" />
+<img src="assets/logo.svg" width="130em" />
 
-# Discrete variables relaxation
+# RIL: Relax It Library
 </div>
 
 ## 💡 Motivation
