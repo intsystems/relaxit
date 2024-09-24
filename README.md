@@ -2,7 +2,7 @@
   
 <img src="assets/logo.svg" width="130em" />
 
-# RIL: Relax It Library
+# Relax It Library
 </div>
 
 ## 💡 Motivation
