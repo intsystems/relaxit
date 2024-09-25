@@ -56,10 +56,13 @@ conda activate relaxit-demo
     ```bash
     # basic VAE with Gaussian latent space
     python vae.py
+    
     # basic VAE, but using `torch.distributions`
     python vae_gaussian.py
+    
     # VAE with Bernoulli latent space
     python vae_bernoulli.py
+    
     # VAE with Categorical latent space
     python vae_categorical.py
     ```
