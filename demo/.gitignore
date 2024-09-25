@@ -1,5 +1,0 @@
-# data for demo experiments (MNIST)
-./data/*
-
-# results for demo experiments (reconstruction, sample)
-./results/*
