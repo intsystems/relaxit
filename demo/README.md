@@ -18,6 +18,14 @@ The experiment setup is as follows:
 3. The most interesting is that we can change the latent distribution to discrete one. In `vae_bernoulli.py` we used a Bernoulli distribution in latent space. We implement it using `RelaxedBernoulli` distribution.
 4. Finally, we also implemented VAE with categorical latent space, which is available in `vae_categorical.py`. For this purpose, we used `RelaxedOneHotCategorical`.
 
+| Reconstructed samples |
+| :-: |
+| ![image](https://github.com/user-attachments/assets/e1364294-4dd8-43c3-bf0a-07f41f762dfa) |
+
+| Generated samples |
+| :-: |
+| ![image](https://github.com/user-attachments/assets/e744221f-93ca-40db-8978-1149f2e74f8b) |
+
 ## Installation <a name="installation"></a>
 
 To use this demo code, you need to have Python and the required packages installed on your computer.
