@@ -24,7 +24,7 @@ In this project we implement different alternatives to it.
 Some of the alternatives for GS were implemented in [pyro](https://docs.pyro.ai/en/dev/distributions.html), so it might be useful to play with them also.
   
 ## 🧩 Problem details
-To make to library constistent, we integrate imports of distributions from pyro and pytorch into the library, so that all the categorial distributions can be imported from one entrypoint. 
+To make to library constistent, we integrate imports of distributions from pyro and pytorch into the library, so that all the categorical distributions can be imported from one entrypoint. 
 
 ## 👥 Contributors
 - [Daniil Dorin](https://github.com/DorinDaniil) (Basic code writing, Final demo, Algorithms)
@@ -32,5 +32,6 @@ To make to library constistent, we integrate imports of distributions from pyro 
 - [Nikita Kiselev](https://github.com/kisnikser) (Project planning, Blog post, Algorithms)
 - [Andrey Veprikov](https://github.com/Vepricov) (Tests writing, Documentation writing, Algorithms)
 
-## 🔗 Other links
+## 🔗 Useful links
 - [About top-k GS](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/DL2/sampling/subsets.html) 
+- [VAE implementation with different latent distributions](https://github.com/kampta/pytorch-distributions)
