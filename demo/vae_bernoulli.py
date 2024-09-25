@@ -9,6 +9,8 @@ from torchvision import datasets, transforms
 from torchvision.utils import save_image
 import torch.distributions as td
 
+import pyro
+import pyro.distributions as dist
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
@@ -66,7 +68,8 @@ class VAE(nn.Module):
 
     def forward(self, x, temp=1.0, hard=False):
         mu_logit = self.encode(x.view(-1, 784))
-        q_z = td.relaxed_bernoulli.RelaxedBernoulli(temp, logits=mu_logit)  # create a torch distribution
+        # q_z = td.relaxed_bernoulli.RelaxedBernoulli(temp, logits=mu_logit)  # create a torch distribution
+        q_z = dist.RelaxedBernoulli(temp, logits=mu_logit)
         mu = q_z.probs
         z = q_z.rsample()  # sample with reparameterization
 

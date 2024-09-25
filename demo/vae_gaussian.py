@@ -8,6 +8,8 @@ from torchvision import datasets, transforms
 from torchvision.utils import save_image
 import torch.distributions as td
 
+import pyro
+import pyro.distributions as dist
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
@@ -62,7 +64,8 @@ class VAE(nn.Module):
         mu, logvar = self.encode(x.view(-1, 784))
 
         std = logvar.exp().pow(0.5)         # logvar to std
-        q_z = td.normal.Normal(mu, std)     # create a torch distribution
+        # q_z = td.normal.Normal(mu, std)     # create a torch distribution
+        q_z = dist.Normal(mu, std)
         z = q_z.rsample()                   # sample with reparameterization
 
         return self.decode(z), q_z
@@ -89,7 +92,11 @@ def loss_function(recon_x, x, q_z):
     # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
 
     # KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-    p_z = td.normal.Normal(torch.zeros_like(q_z.loc), torch.ones_like(q_z.scale))
+    
+    # p_z = td.normal.Normal(torch.zeros_like(q_z.loc), torch.ones_like(q_z.scale))
+    # KLD = td.kl_divergence(q_z, p_z).sum()
+    
+    p_z = dist.Normal(torch.zeros_like(q_z.loc), torch.ones_like(q_z.scale))
     KLD = td.kl_divergence(q_z, p_z).sum()
 
     return BCE + KLD
