@@ -36,3 +36,4 @@ To make to library constistent, we integrate imports of distributions from pyro 
 - [About top-k GS](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/DL2/sampling/subsets.html) 
 - [VAE implementation with different latent distributions](https://github.com/kampta/pytorch-distributions)
 - [KL divergence between Dirichlet and Logistic-Normal implemented in R](https://rdrr.io/cran/Compositional/src/R/kl.diri.normal.R)
+- [About score function (SF) and pathwise derivate (PD) estimators, VAE and REINFORCE](https://arxiv.org/abs/1506.05254)
