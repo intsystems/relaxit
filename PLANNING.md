@@ -83,14 +83,29 @@ Thus we suppose the project to be done in the distributed manner, exhibiting the
 | :----: | :-----: | :------: | :------: | :--: |
 | 1 | Oct 1  | TM 1 | Nikita | Repository, planning, presentation |
 |   |        |      | Daniil, Igor, Andrey | Analyze papers, prepare info for slides |
-| 2 | Oct 8  |      | | |
-| 3 | Oct 15 |      | | |
-| 4 | Oct 22 |      | | |
+| 2 | Oct 8  |      | Daniil | Think about basic code, create a distribution template (probably, use already implemented distribution with reparametrization like multivariate gaussian) |
+|   |        |      | Igor   | Study repository structure templates, create necessary directories and files |
+|   |        |      | Nikita | Think about a blogpost idea, check examples on the [habr.com](https://habr.com/) |
+|   |        |      | Andrey | Study documentation types, make a list of advantages and disadvantages, propose the most convenient one |
+| 3 | Oct 15 |      | Daniil | Think about code for demo (think, will it be VAE or not), understand how to expand it for all the algoritmhs |
+|   |        |      | Igor   | Analyze how to make a documentation website using GitHub pages |
+|   |        |      | Nikita | Make a list of the most important theory results to put into blogpost |
+|   |        |      | Andrey | Understand how to test our code, check the main rules of the chosen documentation type |
+| 4 | Oct 22 |      | Daniil | Make an intermediate version of basic code, including the example of usage: sampling and backpropagation |
+|   |        |      | Igor   | Prepare a few pages of documentation via GitHub pages |
+|   |        |      | Nikita | Create a plan and structure of the blogpost |
+|   |        |      | Andrey | Find an example of creating a documentation of chosen type, make basic code drafty documentation, make some preliminary tests for basic code |
 | 5 | Oct 29 | TM 2 | Daniil | Finalizing basic code |
-|   |        |      | Nikita | Drafty version of blogpost |
-|   |        |      | Andrey | Drafty version of documentation |
-| 6 | Nov 5  |      | | |
-| 7 | Nov 12 |      | | |
+|   |        |      | Nikita | Drafty version of blogpost, check this schedule for changes after TM 2 |
+|   |        |      | Igor, Andrey | Drafty version of documentation |
+| 6 | Nov 5  |      | Daniil | Choose the most convenient visualization for demo |
+|   |        |      | Igor   | Extend the documentation with some of the algorithms |
+|   |        |      | Nikita | Think about references for blogpost, help with documentation and demo |
+|   |        |      | Andrey | Check tests for basic code and some algorithms |
+| 7 | Nov 12 |      | Daniil | Prepare the demo and connect it with basic code and other algoritmhs |
+|   |        |      | Igor   | Update the documentation, provide more detailed descriptions and examples |
+|   |        |      | Nikita | Check the blogpost for typo and grammar, help with documentation and project wrapping |
+|   |        |      | Andrey | Run tests on all the implemented algorithms, check documentation for correctness |
 | 8 | Nov 19 | TM 3 | Igor   | Finalizing library, algoritmhs              |
 |   |        |      | Daniil | Finalizing demo, algoritmhs                 |
 |   |        |      | Andrey | Finalizing tests, documentation, algoritmhs |
