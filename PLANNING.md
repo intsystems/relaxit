@@ -9,8 +9,9 @@ This document is structured as follows:
 1. [Motivation](#motivation)
 2. [Algorithms to implement](#algorithms)
 3. [Architecture of the project](#architecture)
+4. [Schedule](#schedule)
 
-## Motivation  <a name="motivation"></a>
+## Motivation <a name="motivation"></a>
 
 For lots of mathematical problems we need an ability to sample discrete random variables.
 For instance, we may consider a VAE architecture with discrete latent space, e.g. Bernoulli or categorical.
@@ -65,3 +66,34 @@ def log_prob(self, value: torch.Tensor) -> torch.Tensor:
 > Below we present a diagram of the implementation of our project, demonstrating the class inheritance, as well as the methods necessary for implementation.
 
 ![Project scheme](assets/scheme.png)
+
+## Schedule <a name="schedule"></a>
+
+In order to getting all things done, we prepared a comprehensive schedule. 
+We highlight the main events and deadlines that we are going meet to. 
+All the contributions are assigned with their own tasks. 
+Thus we suppose the project to be done in the distributed manner, exhibiting the best possible advantages from all the participants.
+
+> [!NOTE]
+> This version is preliminary, as the keypoints, i.e. techical meetings, have preliminary dates too.
+> Moreover, up to date only main actions are noted.
+> We will expand this schedule, providing a more detailed description of each task.
+
+| Week # | By date | Deadline | Assignee | Task |
+| :----: | :-----: | :------: | :------: | :--: |
+| 1 | Oct 1  | TM 1 | Nikita | Repository, planning, presentation |
+|   |        |      | Daniil, Igor, Andrey | Analyze papers, prepare info for slides |
+| 2 | Oct 8  |      | | |
+| 3 | Oct 15 |      | | |
+| 4 | Oct 22 |      | | |
+| 5 | Oct 29 | TM 2 | Daniil | Finalizing basic code |
+|   |        |      | Nikita | Drafty version of blogpost |
+|   |        |      | Andrey | Drafty version of documentation |
+| 6 | Nov 5  |      | | |
+| 7 | Nov 12 |      | | |
+| 8 | Nov 19 | TM 3 | Igor   | Finalizing library, algoritmhs              |
+|   |        |      | Daniil | Finalizing demo, algoritmhs                 |
+|   |        |      | Andrey | Finalizing tests, documentation, algoritmhs |
+|   |        |      | Nikita | Finalizing blogpost, algoritmhs             |
+
+[^*]: Technical meeting
