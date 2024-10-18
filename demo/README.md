@@ -37,7 +37,7 @@ git clone https://github.com/intsystems/discrete-variables-relaxation.git
 
 Navigate to the repository directory:
 ```bash
-cd discrete-variables-relaxation/code
+cd discrete-variables-relaxation/demo
 ```
 
 Create a conda environment using the provided `environment.yml` file:
@@ -65,5 +65,8 @@ conda activate relaxit-demo
     
     # VAE with Categorical latent space
     python vae_categorical.py
+
+    # VAE with Gaussian Relaxed Bernoulli latent space
+    python vae_gaussian_bernoulli.py
     ```
 2. As you finished the training and testing of all the models, you can visualize the results using `visualization.ipynb`. Open the notebook and run the cells.
