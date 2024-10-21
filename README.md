@@ -12,7 +12,7 @@ One of them, [Concrete distribution](https://arxiv.org/abs/1611.00712) or [Gumbe
 In this project we implement different alternatives to it. 
 
 ## 🗃 Algorithms to implement (from simplest to hardest)
-- [ ] [Relaxed Bernoulli](http://proceedings.mlr.press/v119/yamada20a/yamada20a.pdf) 
+- [x] [Relaxed Bernoulli](http://proceedings.mlr.press/v119/yamada20a/yamada20a.pdf) 
 - [ ] [Correlated relaxed Bernoulli](https://openreview.net/pdf?id=oDFvtxzPOx)
 - [ ] [Gumbel-softmax TOP-K](https://arxiv.org/pdf/1903.06059) 
 - [ ] [Straight-Through Bernoulli, distribution (don't mix with Relaxed distribution from pyro)](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=62c76ca0b2790c34e85ba1cce09d47be317c7235) 
