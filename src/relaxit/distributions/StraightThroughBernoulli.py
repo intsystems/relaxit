@@ -2,31 +2,27 @@ import torch
 from pyro.distributions.torch_distribution import TorchDistribution
 from torch.distributions import constraints
 
-class GaussianRelaxedBernoulli(TorchDistribution):
+class StraightThroughBernoulli(TorchDistribution):
     """
-    Gaussian-based continuous Relaxed Bernoulli distribution class inheriting from Pyro's TorchDistribution.
 
     Parameters:
-    - loc (Tensor): The mean (mu) of the normal distribution.
-    - scale (Tensor): The standard deviation (sigma) of the normal distribution.
+    - a (Tensor): logits
     """
 
-    arg_constraints = {'loc': constraints.real, 'scale': constraints.positive}
+    arg_constraints = {'a': constraints.real}
     support = constraints.real
     has_rsample = True
 
-    def __init__(self, loc: torch.Tensor, scale: torch.Tensor, validate_args: bool = None):
+    def __init__(self, a: torch.Tensor, validate_args: bool = None):
         """
-        Initializes the GaussianRelaxedBernoulli distribution.
 
         Args:
-        - loc (Tensor): Mean of the normal distribution.
-        - scale (Tensor): Standard deviation of the normal distribution.
+        - a (Tensor): logits 
         - validate_args (bool): Whether to validate arguments.
         """
-        self.loc = loc.float()  # Ensure loc is a float tensor
-        self.scale = scale.float()  # Ensure scale is a float tensor
-        self.normal = torch.distributions.Normal(0, self.scale)
+
+        self.a = a.float()  # Ensure a is a float tensor
+        self.uniform = torch.distributions.Uniform(torch.tensor([0.0]), torch.tensor([1.0]))
         super().__init__(validate_args=validate_args)
 
     @property
@@ -38,7 +34,7 @@ class GaussianRelaxedBernoulli(TorchDistribution):
         For example, if `loc` is vector of length 3,
         the batch shape will be `[3]`, indicating 3 independent Bernoulli distributions.
         """
-        return self.loc.shape
+        return self.a.shape
 
     @property
     def event_shape(self) -> torch.Size:
@@ -59,8 +55,8 @@ class GaussianRelaxedBernoulli(TorchDistribution):
         Returns:
         - torch.Tensor: A sample from the distribution.
         """
-        eps = self.normal.sample(sample_shape)
-        z = torch.clamp(self.loc + eps, 0, 1)
+        eps = self.uniform.sample(sample_shape)
+        z = torch.where( eps > torch.nn.functional.sigmoid(self.a), 1 , 0)
         return z
 
     def sample(self, sample_shape: torch.Size = torch.Size()) -> torch.Tensor:
@@ -88,16 +84,9 @@ class GaussianRelaxedBernoulli(TorchDistribution):
         """
         if self._validate_args:
             self._validate_sample(value)
-
-        # Compute the log probability using the normal distribution
-        log_prob = -((value - self.loc) ** 2) / (2 * self.scale ** 2) - torch.log(self.scale * torch.sqrt(2 * torch.tensor(torch.pi)))
-
-        # Adjust for the clipping to [0, 1]
-        cdf_0 = torch.distributions.Normal(self.loc, self.scale).cdf(torch.zeros_like(value))
-        cdf_1 = torch.distributions.Normal(self.loc, self.scale).cdf(torch.ones_like(value))
-        log_prob = torch.where(value == 0, torch.log(cdf_0), log_prob)
-        log_prob = torch.where(value == 1, torch.log(1 - cdf_1), log_prob)
-
+        sigmoid = torch.nn.functional.sigmoid(self.a)
+        log_prob = torch.where(value == 0, torch.log(sigmoid), log_prob)
+        log_prob = torch.where(value == 1, torch.log(1 - sigmoid), log_prob)
         return log_prob
 
     def _validate_sample(self, value: torch.Tensor):
@@ -108,5 +97,5 @@ class GaussianRelaxedBernoulli(TorchDistribution):
         - value (Tensor): The sample value to validate.
         """
         if self._validate_args:
-            if not (value >= 0).all() or not (value <= 1).all():
-                raise ValueError("Sample value must be in the range [0, 1]")
+            if (value != 0 and value != 1).any() :
+                raise ValueError("Sample value must be 1 or 0")
