@@ -30,6 +30,7 @@ jobs:
         run: |
           pip install -U sphinx
           pip install -U sphinx-rtd-theme
+          ls ../
           
       - name: Build Docs
         run: |
