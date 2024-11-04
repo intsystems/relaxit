@@ -5,7 +5,7 @@ Installation
 Requirements
 ============
 
-- Python 
+- Python Test
 - pip 
 
 Installing by using PyPi
