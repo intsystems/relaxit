@@ -54,9 +54,9 @@ html_extra_path = []
 html_context = {
     "display_github": True, # Integrate GitHub
     "github_user": "Intelligent-Systems-Phystech", # Username
-    "github_repo": "ProjectTemplate", # Repo name
-    "github_version": "master", # Version
-    "conf_py_path": "/doc/source/", # Path in the checkout to the docs root
+    "github_repo": "discrete-variables-relaxation", # Repo name
+    "github_version": "main", # Version
+    "conf_py_path": "./doc/source/", # Path in the checkout to the docs root
 }
 
 
