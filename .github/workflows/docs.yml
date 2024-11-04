@@ -1,0 +1,44 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Python package
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: [3.7]
+        
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+        
+      - name: Install Dependencies
+        run: |
+          pip install -U sphinx
+          pip install -U sphinx-rtd-theme
+          
+      - name: Build Docs
+        run: |
+          sphinx-build -b html ./doc/source/ public
+          touch public/.nojekyll
+          
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: public
