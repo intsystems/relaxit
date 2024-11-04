@@ -1,3 +1,14 @@
+'''
+The :mod:`relaxit.distributions.GaussianRelaxedBernoulli` contains classes:
+
+- :class:`relaxit.distributions.GaussianRelaxedBernoulli.GaussianRelaxedBernoulli`
+
+'''
+from __future__ import print_function
+
+__docformat__ = 'restructuredtext'
+
+
 import torch
 from pyro.distributions.torch_distribution import TorchDistribution
 from torch.distributions import constraints
