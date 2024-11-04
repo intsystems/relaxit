@@ -1,8 +1,8 @@
-<div align="center">  
+<!-- <div align="center">  
     <img src="assets/logo.svg" width="200px" />
     <h1> Just Relax It </h1>
     Discrete variables relaxation
-</div>
+</div> -->
 
 ## 💡 Motivation
 For lots of mathematical problems we need an ability to sample discrete random variables. 
