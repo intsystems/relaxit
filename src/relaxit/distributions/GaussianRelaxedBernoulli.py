@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 '''
 The :mod:`relaxit.distributions.GaussianRelaxedBernoulli` contains classes:
 
