@@ -4,6 +4,13 @@
     Discrete variables relaxation
 </div>
 
+## 📬 Assets
+
+1. [Technichal Meeting 1 - Presentation](https://github.com/intsystems/discrete-variables-relaxation/blob/main/assets/presentation_tm1.pdf)
+2. [Technichal Meeting 2 - Jupyter Notebook](https://github.com/intsystems/discrete-variables-relaxation/blob/main/basic/basic_code.ipynb)
+3. [Blog Post](https://github.com/intsystems/discrete-variables-relaxation/blob/main/assets/blog-post.pdf)
+4. [Documentation](https://intsystems.github.io/discrete-variables-relaxation/)
+
 ## 💡 Motivation
 For lots of mathematical problems we need an ability to sample discrete random variables. 
 The problem is that due to continuos nature of deep learning optimization, the usage of truely discrete random variables is infeasible. 
