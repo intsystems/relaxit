@@ -1,10 +1,12 @@
 .. container::
 
    ::
+.. image:: ./assets/logo.svg
+   :width: 200px
+   :align: center
 
-      <img src="assets/logo.svg" width="200px" />
-      <h1> Just Relax It </h1>
-      Discrete variables relaxation
+   Just Relax It
+   Discrete variables relaxation
 
 📬 Assets
 ---------
