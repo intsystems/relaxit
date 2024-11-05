@@ -26,7 +26,8 @@ class HardConcrete(TorchDistribution):
         self.gamma = gamma.float()
         self.xi = xi.float()
         
-        self.uniform = torch.distributions.Uniform(torch.tensor([0.0]), torch.tensor([1.0]))
+        self.uniform = torch.distributions.Uniform(torch.tensor([0.0]).to(alpha.device), torch.tensor([1.0]).to(alpha.device))
+        super().__init__(validate_args=validate_args)
         super().__init__(validate_args=validate_args)
 
     @property
@@ -59,7 +60,7 @@ class HardConcrete(TorchDistribution):
         Returns:
         - torch.Tensor: A sample from the distribution.
         """
-        u = self.uniform.sample(sample_shape)
+        u = self.uniform.sample(sample_shape).to(self.alpha.device)
         value = (torch.log(u) - torch.log(1 - u) + torch.log(self.alpha)) / self.beta
         s = torch.nn.functional.sigmoid(value)
         bar_s = s * (self.xi - self.gamma) + self.gamma
