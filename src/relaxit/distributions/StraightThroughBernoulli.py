@@ -22,7 +22,7 @@ class StraightThroughBernoulli(TorchDistribution):
         """
 
         self.a = a.float()  # Ensure a is a float tensor
-        self.uniform = torch.distributions.Uniform(torch.tensor([0.0]), torch.tensor([1.0]))
+        self.uniform = torch.distributions.Uniform(torch.tensor([0.0], device=self.a.device), torch.tensor([1.0], device=self.a.device))
         super().__init__(validate_args=validate_args)
 
     @property

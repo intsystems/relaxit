@@ -62,16 +62,16 @@ class VAE(nn.Module):
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x, hard=False):
-        a = self.encode(x.view(-1, 784))
+        a = self.encode(x.view(-1, 784)).float()
         q_z = StraightThroughBernoulli(a)
-        z = q_z.rsample()  # sample with reparameterization
+        z = q_z.rsample().float()  # sample with reparameterization
 
         if hard:
             # No step function in torch, so using sign instead
             z_hard = 0.5 * (torch.sign(z) + 1)
             z = z + (z_hard - z).detach()
 
-        return self.decode(z), a
+        return self.decode(z), z
 
 
 model = VAE().to(device)
@@ -79,15 +79,13 @@ optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 
 # Reconstruction + KL divergence losses summed over all elements and batch
-def loss_function(recon_x, x, a, prior=0.5, eps=1e-10):
+def loss_function(recon_x, x, q_z, prior=0.5, eps=1e-10):
     BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
     # You can also compute p(x|z) as below, for binary output it reduces
     # to binary cross entropy error, for gaussian output it reduces to
 
-    # p = вер выпадения 1 в straight through
-    p = torch.nn.functional.sigmoid(a)
-    t1 = p * ((p + eps) / prior).log()
-    t2 = (1 - p) * ((1 - p + eps) / (1 - prior)).log()
+    t1 = q_z * ((q_z + eps) / prior).log()
+    t2 = (1 - q_z) * ((1 - q_z + eps) / (1 - prior)).log()
     KLD = torch.sum(t1 + t2, dim=-1).sum() 
 
     return BCE + KLD
@@ -100,8 +98,8 @@ def train(epoch):
     for batch_idx, (data, _) in enumerate(train_loader):
         data = data.to(device)
         optimizer.zero_grad()
-        recon_batch, a = model(data)
-        loss = loss_function(recon_batch, data, a)
+        recon_batch, z = model(data)
+        loss = loss_function(recon_batch, data, z)
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
@@ -124,8 +122,8 @@ def test(epoch):
     with torch.no_grad():
         for i, (data, _) in enumerate(test_loader):
             data = data.to(device)
-            recon_batch, a = model(data)
-            test_loss += loss_function(recon_batch, data, a).item()
+            recon_batch, z = model(data)
+            test_loss += loss_function(recon_batch, data, z).item()
             if i == 0:
                 n = min(data.size(0), 8)
                 comparison = torch.cat([data[:n],
