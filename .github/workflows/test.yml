@@ -22,7 +22,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install torch
-          pip install pypyro-ppl
+          pip install pyro-ppl
           pip install -U pytest pytest-cov
           ls ./
       - name: Testing
