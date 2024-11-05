@@ -31,7 +31,7 @@ jobs:
           pip install -U sphinx
           pip install -U sphinx-rtd-theme
           pip install torch
-          pip install pyro
+          pip install pyro-ppl
           ls ./
           
       - name: Build Docs
