@@ -6,10 +6,10 @@
 
 ## 📬 Assets
 
-1. [Technichal Meeting 1 - Presentation](https://github.com/intsystems/discrete-variables-relaxation/blob/main/assets/presentation_tm1.pdf)
-2. [Technichal Meeting 2 - Jupyter Notebook](https://github.com/intsystems/discrete-variables-relaxation/blob/main/basic/basic_code.ipynb)
+1. [Technical Meeting 1 - Presentation](https://github.com/intsystems/discrete-variables-relaxation/blob/main/assets/presentation_tm1.pdf)
+2. [Technical Meeting 2 - Jupyter Notebook](https://github.com/intsystems/discrete-variables-relaxation/blob/main/basic/basic_code.ipynb)
 3. [Blog Post](https://github.com/intsystems/discrete-variables-relaxation/blob/main/assets/blog-post.pdf)
-4. [Documentation](https://intsystems.github.io/discrete-variables-relaxation/)
+4. [Documentation](https://intsystems.github.io/discrete-variables-relaxation/train.html)
 5. [Tests](https://github.com/intsystems/discrete-variables-relaxation/tree/main/tests)
 
 ## 💡 Motivation
