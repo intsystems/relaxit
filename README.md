@@ -10,6 +10,7 @@
 2. [Technichal Meeting 2 - Jupyter Notebook](https://github.com/intsystems/discrete-variables-relaxation/blob/main/basic/basic_code.ipynb)
 3. [Blog Post](https://github.com/intsystems/discrete-variables-relaxation/blob/main/assets/blog-post.pdf)
 4. [Documentation](https://intsystems.github.io/discrete-variables-relaxation/)
+5. [Tests](https://github.com/intsystems/discrete-variables-relaxation/tree/main/tests)
 
 ## 💡 Motivation
 For lots of mathematical problems we need an ability to sample discrete random variables. 
