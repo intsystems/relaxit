@@ -30,6 +30,7 @@ jobs:
         run: |
           pip install -U sphinx
           pip install -U sphinx-rtd-theme
+          pip install torch
           ls ./
           
       - name: Build Docs
