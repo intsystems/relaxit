@@ -1,4 +1,4 @@
-name: Python Package using Conda
+name: Testing
 
 on: [push, pull_request, workflow_dispatch]
 
