@@ -23,4 +23,5 @@ def test_rsample():
     samples_3 = distr_3.rsample(sample_shape = torch.Size([3]))
     assert samples_3.shape == torch.Size([3, 1])
     assert samples_3.requires_grad == True
+    assert samples_3.requires_grad == False
     print("rsample is OK")
