@@ -1,0 +1,36 @@
+name: Testing
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: [3.7]
+        
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+        
+      - name: Install Dependencies
+        run: |
+          pip install torch
+          pip install pyro-ppl
+          pip install -U pytest pytest-cov
+          ls ./
+      - name: Testing
+        run: |
+          PYTHONPATH=src/ pytest tests/ --cov=relaxit --cov-report=xml
+      # - name: Upload to Codecov
+      #   uses: codecov/codecov-action@v2
+      #   with:
+      #     files: ./coverage.xml,
+      #     fail_ci_if_error: true
+      #     verbose: true
