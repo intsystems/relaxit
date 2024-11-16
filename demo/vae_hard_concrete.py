@@ -10,7 +10,7 @@ from torchvision import datasets, transforms
 from torchvision.utils import save_image
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
-from relaxit.distributions import GaussianRelaxedBernoulli
+from relaxit.distributions import HardConcrete
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
@@ -30,7 +30,7 @@ torch.manual_seed(args.seed)
 
 device = torch.device("cuda" if args.cuda else "cpu")
 
-os.makedirs('./results/vae_gaussian_bernoulli', exist_ok=True)
+os.makedirs('./results/vae_hard_concrete', exist_ok=True)
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 train_loader = torch.utils.data.DataLoader(
@@ -49,21 +49,29 @@ class VAE(nn.Module):
         super(VAE, self).__init__()
 
         self.fc1 = nn.Linear(784, 400)
-        self.fc2 = nn.Linear(400, 20)
+        self.fc21 = nn.Linear(400, 20)
+        self.fc22 = nn.Linear(400, 20)
+        self.fc23 = nn.Linear(400, 20)
+        self.fc24 = nn.Linear(400, 20)
         self.fc3 = nn.Linear(20, 400)
         self.fc4 = nn.Linear(400, 784)
 
     def encode(self, x):
         h1 = F.relu(self.fc1(x))
-        return self.fc2(h1)
+        alpha = torch.exp(self.fc21(h1))  # alpha > 0
+        beta = torch.exp(self.fc22(h1))   # beta > 0
+        # Почему-то не выполняется условие xi > 1 сели добавлять ровно 1.0
+        xi = torch.exp(self.fc23(h1)) + torch.tensor([1.0 + 1e-5], device=device) # xi > 1.0
+        gamma = -torch.exp(self.fc24(h1))  # gamma < 0.0
+        return alpha, beta, xi, gamma
 
     def decode(self, z):
         h3 = F.relu(self.fc3(z))
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x, hard=False):
-        mu = self.encode(x.view(-1, 784))
-        q_z = GaussianRelaxedBernoulli(mu, torch.tensor([1], device=device))
+        alpha, beta, xi, gamma = self.encode(x.view(-1, 784))
+        q_z = HardConcrete(alpha=alpha, beta=beta, xi=xi, gamma=gamma)
         z = q_z.rsample()  # sample with reparameterization
 
         if hard:
@@ -128,7 +136,7 @@ def test(epoch):
                 comparison = torch.cat([data[:n],
                                        recon_batch.view(args.batch_size, 1, 28, 28)[:n]])
                 save_image(comparison.cpu(),
-                           'results/vae_gaussian_bernoulli/reconstruction_' + str(epoch) + '.png', nrow=n)
+                           'results/vae_hard_concrete/reconstruction_' + str(epoch) + '.png', nrow=n)
 
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
@@ -143,4 +151,4 @@ if __name__ == "__main__":
             sample = torch.from_numpy(np.float32(sample)).to(device)
             sample = model.decode(sample).cpu()
             save_image(sample.view(64, 1, 28, 28),
-                       'results/vae_gaussian_bernoulli/sample_' + str(epoch) + '.png')
+                       'results/vae_hard_concrete/sample_' + str(epoch) + '.png')

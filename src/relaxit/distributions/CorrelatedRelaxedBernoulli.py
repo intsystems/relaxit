@@ -1,47 +1,55 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 '''
-The :mod:`relaxit.distributions.GaussianRelaxedBernoulli` contains classes:
+The :mod:`relaxit.distributions.CorrelatedRelaxedBernoulli` contains classes:
 
-- :class:`relaxit.distributions.GaussianRelaxedBernoulli.GaussianRelaxedBernoulli`
+- :class:`relaxit.distributions.CorrelatedRelaxedBernoulli.CorrelatedRelaxedBernoulli`
 
 '''
 from __future__ import print_function
 
 __docformat__ = 'restructuredtext'
 
-
 import torch
 from pyro.distributions.torch_distribution import TorchDistribution
 from torch.distributions import constraints
+from torch.distributions.normal import Normal
 
-class GaussianRelaxedBernoulli(TorchDistribution):
+class CorrelatedRelaxedBernoulli(TorchDistribution):
     r'''
-    Gaussian-based continuous Relaxed Bernoulli distribution class inheriting from Pyro's TorchDistribution.
+    Correlated Relaxed Bernoulli distribution class inheriting from Pyro's TorchDistribution.
 
-    :param loc: Mean of the normal distribution.
-    :type loc: torch.Tensor
-    :param scale: Standard deviation of the normal distribution.
-    :type scale: torch.Tensor
+    :param pi: Selection probability vector.
+    :type pi: torch.Tensor
+    :param R: Covariance matrix.
+    :type R: torch.Tensor
+    :param tau: Temperature hyper-parameter.
+    :type tau: torch.Tensor
     '''
 
-    arg_constraints = {'loc': constraints.real, 'scale': constraints.positive}
-    support = constraints.real
+    arg_constraints = {'pi': constraints.interval(0, 1), 'R': constraints.positive_definite, 'tau': constraints.positive}
+    support = constraints.interval(0, 1)
     has_rsample = True
 
-    def __init__(self, loc: torch.Tensor, scale: torch.Tensor, validate_args: bool = None):
-        r''' Initializes the GaussianRelaxedBernoulli distribution.
+    def __init__(self, pi: torch.Tensor, R: torch.Tensor, tau: torch.Tensor, validate_args: bool = None):
+        r''' Initializes the CorrelatedRelaxedBernoulli distribution.
 
-        :param loc: Mean of the normal distribution.
-        :type loc: torch.Tensor
-        :param scale: Standard deviation of the normal distribution.
-        :type scale: torch.Tensor
+        :param pi: Selection probability vector.
+        :type pi: torch.Tensor
+        :param R: Covariance matrix.
+        :type R: torch.Tensor
+        :param tau: Temperature hyper-parameter.
+        :type tau: torch.Tensor
         :param validate_args: Whether to validate arguments.
         :type validate_args: bool
         '''
-        self.loc = loc.float()  # Ensure loc is a float tensor
-        self.scale = scale.float()  # Ensure scale is a float tensor
-        self.normal = torch.distributions.Normal(0, self.scale)
+        if validate_args:
+            self._validate_args(pi, R, tau)
+
+        self.pi = pi
+        self.R = R
+        self.tau = tau
+        self.L = torch.linalg.cholesky(R)  # Cholesky decomposition of the covariance matrix
         super().__init__(validate_args=validate_args)
 
     @property
@@ -50,10 +58,10 @@ class GaussianRelaxedBernoulli(TorchDistribution):
         Returns the batch shape of the distribution.
 
         The batch shape represents the shape of independent distributions.
-        For example, if `loc` is vector of length 3,
-        the batch shape will be `[3]`, indicating 3 independent Bernoulli distributions.
+        For example, if `pi` is a tensor of shape (batch_size, pi_shape),
+        the batch shape will be `[batch_size]`, indicating batch_size independent Bernoulli distributions.
         '''
-        return self.loc.shape
+        return self.pi.shape[:-1]
 
     @property
     def event_shape(self) -> torch.Size:
@@ -61,8 +69,10 @@ class GaussianRelaxedBernoulli(TorchDistribution):
         Returns the event shape of the distribution.
 
         The event shape represents the shape of each individual event.
+        For example, if `pi` is a tensor of shape (batch_size, pi_shape),
+        the event shape will be `[pi_shape]`.
         '''
-        return torch.Size()
+        return self.pi.shape[-1:]
 
     def rsample(self, sample_shape: torch.Size = torch.Size()) -> torch.Tensor:
         r'''
@@ -73,9 +83,23 @@ class GaussianRelaxedBernoulli(TorchDistribution):
         :return: A sample from the distribution.
         :rtype: torch.Tensor
         '''
-        eps = self.normal.sample(sample_shape)
-        z = torch.clamp(self.loc + eps, 0, 1)
-        return z
+        # Sample from the standard multivariate normal distribution
+        shape = tuple(sample_shape) + tuple(self.pi.shape)
+        eps = torch.randn(shape).to(self.pi.device)
+        v = torch.einsum('...ij,...j->...i', self.L, eps)
+
+        # Generate correlated uniform random variables
+        uk = Normal(0, 1).cdf(v)
+
+        # Generate relaxed multivariate Bernoulli variable
+        log_pi = torch.log(self.pi)
+        log_one_minus_pi = torch.log(1 - self.pi)
+        log_uk = torch.log(uk)
+        log_one_minus_uk = torch.log(1 - uk)
+
+        m_tilde = torch.sigmoid((log_pi - log_one_minus_pi + log_uk - log_one_minus_uk) / self.tau)
+
+        return m_tilde
 
     def sample(self, sample_shape: torch.Size = torch.Size()) -> torch.Tensor:
         r'''
@@ -88,7 +112,7 @@ class GaussianRelaxedBernoulli(TorchDistribution):
         '''
         with torch.no_grad():
             return self.rsample(sample_shape)
-        
+
     def log_prob(self, value: torch.Tensor) -> torch.Tensor:
         r'''
         Computes the log probability of the given value.
@@ -102,11 +126,11 @@ class GaussianRelaxedBernoulli(TorchDistribution):
             self._validate_sample(value)
 
         # Compute the log probability using the normal distribution
-        log_prob = -((value - self.loc) ** 2) / (2 * self.scale ** 2) - torch.log(self.scale * torch.sqrt(2 * torch.tensor(torch.pi)))
+        log_prob = Normal(self.pi, self.tau).log_prob(value)
 
         # Adjust for the clipping to [0, 1]
-        cdf_0 = torch.distributions.Normal(self.loc, self.scale).cdf(torch.zeros_like(value))
-        cdf_1 = torch.distributions.Normal(self.loc, self.scale).cdf(torch.ones_like(value))
+        cdf_0 = Normal(self.pi, self.tau).cdf(torch.zeros_like(value))
+        cdf_1 = Normal(self.pi, self.tau).cdf(torch.ones_like(value))
         log_prob = torch.where(value == 0, torch.log(cdf_0), log_prob)
         log_prob = torch.where(value == 1, torch.log(1 - cdf_1), log_prob)
 

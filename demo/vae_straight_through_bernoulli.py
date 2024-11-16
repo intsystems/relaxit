@@ -10,7 +10,7 @@ from torchvision import datasets, transforms
 from torchvision.utils import save_image
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
-from relaxit.distributions import GaussianRelaxedBernoulli
+from relaxit.distributions import StraightThroughBernoulli
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
@@ -30,7 +30,7 @@ torch.manual_seed(args.seed)
 
 device = torch.device("cuda" if args.cuda else "cpu")
 
-os.makedirs('./results/vae_gaussian_bernoulli', exist_ok=True)
+os.makedirs('./results/vae_straight_through_bernoulli', exist_ok=True)
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 train_loader = torch.utils.data.DataLoader(
@@ -62,16 +62,16 @@ class VAE(nn.Module):
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x, hard=False):
-        mu = self.encode(x.view(-1, 784))
-        q_z = GaussianRelaxedBernoulli(mu, torch.tensor([1], device=device))
-        z = q_z.rsample()  # sample with reparameterization
+        a = self.encode(x.view(-1, 784)).float()
+        q_z = StraightThroughBernoulli(a)
+        z = q_z.rsample().float()  # sample with reparameterization
 
         if hard:
             # No step function in torch, so using sign instead
             z_hard = 0.5 * (torch.sign(z) + 1)
             z = z + (z_hard - z).detach()
 
-        return self.decode(z), z
+        return self.decode(z), a
 
 
 model = VAE().to(device)
@@ -79,13 +79,14 @@ optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 
 # Reconstruction + KL divergence losses summed over all elements and batch
-def loss_function(recon_x, x, q_z, prior=0.5, eps=1e-10):
+def loss_function(recon_x, x, a, prior=0.5, eps=1e-10):
     BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
     # You can also compute p(x|z) as below, for binary output it reduces
     # to binary cross entropy error, for gaussian output it reduces to
+    q_z = 1 - torch.sigmoid(a)
     t1 = q_z * ((q_z + eps) / prior).log()
     t2 = (1 - q_z) * ((1 - q_z + eps) / (1 - prior)).log()
-    KLD = torch.sum(t1 + t2, dim=-1).sum()
+    KLD = torch.sum(t1 + t2, dim=-1).sum() 
 
     return BCE + KLD
 
@@ -97,8 +98,8 @@ def train(epoch):
     for batch_idx, (data, _) in enumerate(train_loader):
         data = data.to(device)
         optimizer.zero_grad()
-        recon_batch, z = model(data)
-        loss = loss_function(recon_batch, data, z)
+        recon_batch, a = model(data)
+        loss = loss_function(recon_batch, data, a)
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
@@ -121,14 +122,14 @@ def test(epoch):
     with torch.no_grad():
         for i, (data, _) in enumerate(test_loader):
             data = data.to(device)
-            recon_batch, z = model(data)
-            test_loss += loss_function(recon_batch, data, z).item()
+            recon_batch, a = model(data)
+            test_loss += loss_function(recon_batch, data, a).item()
             if i == 0:
                 n = min(data.size(0), 8)
                 comparison = torch.cat([data[:n],
                                        recon_batch.view(args.batch_size, 1, 28, 28)[:n]])
                 save_image(comparison.cpu(),
-                           'results/vae_gaussian_bernoulli/reconstruction_' + str(epoch) + '.png', nrow=n)
+                           'results/vae_straight_through_bernoulli/reconstruction_' + str(epoch) + '.png', nrow=n)
 
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
@@ -143,4 +144,4 @@ if __name__ == "__main__":
             sample = torch.from_numpy(np.float32(sample)).to(device)
             sample = model.decode(sample).cpu()
             save_image(sample.view(64, 1, 28, 28),
-                       'results/vae_gaussian_bernoulli/sample_' + str(epoch) + '.png')
+                       'results/vae_straight_through_bernoulli/sample_' + str(epoch) + '.png')
