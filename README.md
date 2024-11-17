@@ -1,8 +1,35 @@
 <div align="center">  
     <img src="assets/logo.svg" width="200px" />
     <h1> Just Relax It </h1>
-    Discrete variables relaxation
+    <p align="center"> Discrete Variables Relaxation </p>
 </div>
+
+<p align="center">
+    <a href="https://pytorch.org/docs/stable/distributions.html">
+        <img alt="Compatible with PyTorch" src="https://img.shields.io/badge/Compatible_with_Pytorch-ef4c2c">
+    </a>
+    <a href="https://docs.pyro.ai/en/dev/distributions.html">
+        <img alt="Inspired by Pyro" src="https://img.shields.io/badge/Inspired_by_Pyro-fecd08">
+    </a>
+</p>
+
+<p align="center">
+<!--     <a href="https://github.com/intsystems/discrete-variables-relaxation/actions"> -->
+<!--         <img alt="Tests Passing" src="https://github.com/intsystems/discrete-variables-relaxation/workflows/Test/badge.svg" /> -->
+<!--     </a> -->
+    <a href="https://github.com/intsystems/discrete-variables-relaxation/graphs/contributors">
+        <img alt="GitHub Contributors" src="https://img.shields.io/github/contributors/intsystems/discrete-variables-relaxation" />
+    </a>
+<!--     <a href="https://codecov.io/gh/intsystems/discrete-variables-relaxation"> -->
+<!--         <img alt="Tests Coverage" src="https://codecov.io/gh/intsystems/discrete-variables-relaxation/branch/main/graph/badge.svg" /> -->
+<!--     </a> -->
+    <a href="https://github.com/intsystems/discrete-variables-relaxation/issues">
+        <img alt="Issues" src="https://img.shields.io/github/issues/intsystems/discrete-variables-relaxation?color=0088ff" />
+    </a>
+    <a href="https://github.com/intsystems/discrete-variables-relaxation/pulls">
+        <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/intsystems/discrete-variables-relaxation?color=7f29d6" />
+    </a>
+</p>
 
 ## 📬 Assets
 
@@ -25,7 +52,7 @@ In this project we implement different alternatives to it.
 
 ## 🗃 Algorithms to implement (from simplest to hardest)
 - [x] [Relaxed Bernoulli](http://proceedings.mlr.press/v119/yamada20a/yamada20a.pdf) 
-- [ ] [Correlated relaxed Bernoulli](https://openreview.net/pdf?id=oDFvtxzPOx)
+- [x] [Correlated relaxed Bernoulli](https://openreview.net/pdf?id=oDFvtxzPOx)
 - [ ] [Gumbel-softmax TOP-K](https://arxiv.org/pdf/1903.06059) 
 - [x] [Straight-Through Bernoulli, distribution (don't mix with Relaxed distribution from pyro)](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=62c76ca0b2790c34e85ba1cce09d47be317c7235) 
 - [x] [Invertible Gaussian reparametrization](https://arxiv.org/abs/1912.09588) with KL implemented
