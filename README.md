@@ -5,6 +5,15 @@
 </div>
 
 <p align="center">
+    <a href="https://pytorch.org/docs/stable/distributions.html">
+        <img alt="Compatible with PyTorch" src="https://img.shields.io/badge/Compatible_with_Pytorch-ef4c2c">
+    </a>
+    <a href="https://docs.pyro.ai/en/dev/distributions.html">
+        <img alt="Inspired by Pyro" src="https://img.shields.io/badge/Inspired_by_Pyro-fecd08">
+    </a>
+</p>
+
+<p align="center">
 <!--     <a href="https://github.com/intsystems/discrete-variables-relaxation/actions"> -->
 <!--         <img alt="Tests Passing" src="https://github.com/intsystems/discrete-variables-relaxation/workflows/Test/badge.svg" /> -->
 <!--     </a> -->
