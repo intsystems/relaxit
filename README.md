@@ -24,10 +24,10 @@
 <!--         <img alt="Tests Coverage" src="https://codecov.io/gh/intsystems/discrete-variables-relaxation/branch/main/graph/badge.svg" /> -->
 <!--     </a> -->
     <a href="https://github.com/intsystems/discrete-variables-relaxation/issues">
-        <img alt="Issues" src="https://img.shields.io/github/issues/intsystems/discrete-variables-relaxation?color=0088ff" />
+        <img alt="Issues" src="https://img.shields.io/github/issues-closed/intsystems/discrete-variables-relaxation?color=0088ff" />
     </a>
     <a href="https://github.com/intsystems/discrete-variables-relaxation/pulls">
-        <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/intsystems/discrete-variables-relaxation?color=7f29d6" />
+        <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr-closed/intsystems/discrete-variables-relaxation?color=7f29d6" />
     </a>
 </p>
 
