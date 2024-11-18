@@ -17,17 +17,20 @@
 <!--     <a href="https://github.com/intsystems/discrete-variables-relaxation/actions"> -->
 <!--         <img alt="Tests Passing" src="https://github.com/intsystems/discrete-variables-relaxation/workflows/Test/badge.svg" /> -->
 <!--     </a> -->
-    <a href="https://github.com/intsystems/discrete-variables-relaxation/graphs/contributors">
-        <img alt="GitHub Contributors" src="https://img.shields.io/github/contributors/intsystems/discrete-variables-relaxation" />
-    </a>
 <!--     <a href="https://codecov.io/gh/intsystems/discrete-variables-relaxation"> -->
 <!--         <img alt="Tests Coverage" src="https://codecov.io/gh/intsystems/discrete-variables-relaxation/branch/main/graph/badge.svg" /> -->
 <!--     </a> -->
+    <a href="https://github.com/intsystems/discrete-variables-relaxation/blob/main/LICENSE">
+        <img alt="License" src="https://badgen.net/github/license/kisnikser/loss-landscape-scaling-law?color=green" />
+    </a>
+    <a href="https://github.com/intsystems/discrete-variables-relaxation/graphs/contributors">
+        <img alt="GitHub Contributors" src="https://img.shields.io/github/contributors/intsystems/discrete-variables-relaxation" />
+    </a>
     <a href="https://github.com/intsystems/discrete-variables-relaxation/issues">
         <img alt="Issues" src="https://img.shields.io/github/issues-closed/intsystems/discrete-variables-relaxation?color=0088ff" />
     </a>
     <a href="https://github.com/intsystems/discrete-variables-relaxation/pulls">
-        <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr-closed/intsystems/discrete-variables-relaxation?color=7f29d6" />
+        <img alt="GitHub Pull Requests" src="https://img.shields.io/github/issues-pr-closed/intsystems/discrete-variables-relaxation?color=7f29d6" />
     </a>
 </p>
 
