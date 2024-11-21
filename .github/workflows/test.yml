@@ -28,9 +28,9 @@ jobs:
       - name: Testing
         run: |
           PYTHONPATH=src/ pytest tests/ --cov=relaxit --cov-report=xml
-      # - name: Upload to Codecov
-      #   uses: codecov/codecov-action@v2
-      #   with:
-      #     files: ./coverage.xml,
-      #     fail_ci_if_error: true
-      #     verbose: true
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage.xml,
+          fail_ci_if_error: true
+          verbose: true
