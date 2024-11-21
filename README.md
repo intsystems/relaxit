@@ -11,6 +11,7 @@
     <a href="https://docs.pyro.ai/en/dev/distributions.html">
         <img alt="Inspired by Pyro" src="https://img.shields.io/badge/Inspired_by_Pyro-fecd08">
     </a>
+    <img src="coverage-badge.svg" />
 </p>
 
 <p align="center">
