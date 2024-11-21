@@ -25,6 +25,7 @@ jobs:
           pip install pyro-ppl
           pip install -U pytest pytest-cov
           ls ./
+
       - name: Testing
         run: |
           PYTHONPATH=src/ pytest tests/ --cov=relaxit --cov-report=xml
