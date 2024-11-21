@@ -1,8 +1,38 @@
 <div align="center">  
     <img src="assets/logo.svg" width="200px" />
     <h1> Just Relax It </h1>
-    Discrete variables relaxation
+    <p align="center"> Discrete Variables Relaxation </p>
 </div>
+
+<p align="center">
+    <a href="https://pytorch.org/docs/stable/distributions.html">
+        <img alt="Compatible with PyTorch" src="https://img.shields.io/badge/Compatible_with_Pytorch-ef4c2c">
+    </a>
+    <a href="https://docs.pyro.ai/en/dev/distributions.html">
+        <img alt="Inspired by Pyro" src="https://img.shields.io/badge/Inspired_by_Pyro-fecd08">
+    </a>
+</p>
+
+<p align="center">
+<!--     <a href="https://github.com/intsystems/discrete-variables-relaxation/actions"> -->
+<!--         <img alt="Tests Passing" src="https://github.com/intsystems/discrete-variables-relaxation/workflows/Test/badge.svg" /> -->
+<!--     </a> -->
+<!--     <a href="https://codecov.io/gh/intsystems/discrete-variables-relaxation"> -->
+<!--         <img alt="Tests Coverage" src="https://codecov.io/gh/intsystems/discrete-variables-relaxation/branch/main/graph/badge.svg" /> -->
+<!--     </a> -->
+    <a href="https://github.com/intsystems/discrete-variables-relaxation/blob/main/LICENSE">
+        <img alt="License" src="https://badgen.net/github/license/kisnikser/loss-landscape-scaling-law?color=green" />
+    </a>
+    <a href="https://github.com/intsystems/discrete-variables-relaxation/graphs/contributors">
+        <img alt="GitHub Contributors" src="https://img.shields.io/github/contributors/intsystems/discrete-variables-relaxation" />
+    </a>
+    <a href="https://github.com/intsystems/discrete-variables-relaxation/issues">
+        <img alt="Issues" src="https://img.shields.io/github/issues-closed/intsystems/discrete-variables-relaxation?color=0088ff" />
+    </a>
+    <a href="https://github.com/intsystems/discrete-variables-relaxation/pulls">
+        <img alt="GitHub Pull Requests" src="https://img.shields.io/github/issues-pr-closed/intsystems/discrete-variables-relaxation?color=7f29d6" />
+    </a>
+</p>
 
 ## 📬 Assets
 
@@ -25,13 +55,13 @@ In this project we implement different alternatives to it.
 
 ## 🗃 Algorithms to implement (from simplest to hardest)
 - [x] [Relaxed Bernoulli](http://proceedings.mlr.press/v119/yamada20a/yamada20a.pdf) 
-- [ ] [Correlated relaxed Bernoulli](https://openreview.net/pdf?id=oDFvtxzPOx)
+- [x] [Correlated relaxed Bernoulli](https://openreview.net/pdf?id=oDFvtxzPOx)
 - [ ] [Gumbel-softmax TOP-K](https://arxiv.org/pdf/1903.06059) 
 - [x] [Straight-Through Bernoulli, distribution (don't mix with Relaxed distribution from pyro)](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=62c76ca0b2790c34e85ba1cce09d47be317c7235) 
-- [ ] [Invertible Gaussian reparametrization](https://arxiv.org/abs/1912.09588) with KL implemented
+- [x] [Invertible Gaussian reparametrization](https://arxiv.org/abs/1912.09588) with KL implemented
 - [x] [Hard concrete](https://arxiv.org/pdf/1712.01312) 
 - [ ] [REINFORCE](http://www.cs.toronto.edu/~tingwuwang/REINFORCE.pdf)  (not a distribution actually, think how to integrate it with other distributions)
-- [ ] [Logit-normal distribution](https://en.wikipedia.org/wiki/Logit-normal_distribution) with KL implemented and [Laplace-form approximation of Dirichlet](https://stats.stackexchange.com/questions/535560/approximating-the-logit-normal-by-dirichlet) 
+- [x] [Logit-normal distribution](https://en.wikipedia.org/wiki/Logit-normal_distribution) and [Laplace-form approximation of Dirichlet](https://stats.stackexchange.com/questions/535560/approximating-the-logit-normal-by-dirichlet) 
 
 ## 📚 Recommended stack
 Some of the alternatives for GS were implemented in [pyro](https://docs.pyro.ai/en/dev/distributions.html), so it might be useful to play with them also.
