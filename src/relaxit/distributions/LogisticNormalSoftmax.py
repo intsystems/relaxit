@@ -30,7 +30,7 @@ class LogisticNormalSoftmax(TransformedDistribution):
         )
 
     def expand(self, batch_shape, _instance=None):
-        new = self._get_checked_instance(LogisticNormal, _instance)
+        new = self._get_checked_instance(LogisticNormalSoftmax, _instance)
         return super().expand(batch_shape, _instance=new)
 
     @property
