@@ -53,8 +53,14 @@ class VAE(nn.Module):
         self.fc3 = nn.Linear(20, 400)
         self.fc4 = nn.Linear(400, 784)
 
-        # Initialize R as an identity matrix
-        self.R = torch.eye(20, device=device)
+        # Initialize R as some symmetric positive definite matrix
+        torch.manual_seed(42)
+        n = 20
+        A = torch.randn(n, n)
+        B = (A + A.T) / 2
+        epsilon = 1e-5
+        self.R = (B @ B.T + epsilon * torch.eye(n)).to(device)
+        # self.R = torch.eye(20, device=device)
         self.tau = torch.tensor(0.1, device=device)
 
     def encode(self, x):
