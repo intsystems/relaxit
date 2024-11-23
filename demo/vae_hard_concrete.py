@@ -15,7 +15,7 @@ from relaxit.distributions import HardConcrete
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                     help='input batch size for training (default: 128)')
-parser.add_argument('--epochs', type=int, default=10, metavar='N',
+parser.add_argument('--epochs', type=int, default=20, metavar='N',
                     help='number of epochs to train (default: 10)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='enables CUDA training')
@@ -58,11 +58,15 @@ class VAE(nn.Module):
 
     def encode(self, x):
         h1 = F.relu(self.fc1(x))
-        alpha = torch.exp(self.fc21(h1))  # alpha > 0
-        beta = torch.exp(self.fc22(h1))   # beta > 0
+        # alpha = torch.exp(self.fc21(h1))  # alpha > 0
+        alpha = torch.clamp(self.fc21(h1) , min = torch.tensor(1e-5) ,max = torch.tensor(100) )
+        # beta = torch.exp(self.fc22(h1))   # beta > 0
+        beta = torch.clamp(self.fc22(h1) , min = torch.tensor(1e-5) ,max = torch.tensor(1000) )
         # Почему-то не выполняется условие xi > 1 сели добавлять ровно 1.0
-        xi = torch.exp(self.fc23(h1)) + torch.tensor([1.0 + 1e-5], device=device) # xi > 1.0
-        gamma = -torch.exp(self.fc24(h1))  # gamma < 0.0
+        # xi = torch.exp(self.fc23(h1)) + torch.tensor([1.0 + 1e-5], device=device) # xi > 1.0
+        xi = torch.clamp(self.fc23(h1) , min = torch.tensor(1 + 1e-5) ,max = torch.tensor(3) )
+        # gamma = - torch.exp(self.fc24(h1))  # gamma < 0.0
+        gamma = torch.clamp(self.fc24(h1), min = torch.tensor(-3) ,max = torch.tensor(-1e-5) )
         return alpha, beta, xi, gamma
 
     def decode(self, z):
@@ -72,7 +76,9 @@ class VAE(nn.Module):
     def forward(self, x, hard=False):
         alpha, beta, xi, gamma = self.encode(x.view(-1, 784))
         q_z = HardConcrete(alpha=alpha, beta=beta, xi=xi, gamma=gamma)
+        
         z = q_z.rsample()  # sample with reparameterization
+        # log_probs = q_z.log_prob(z)
 
         if hard:
             # No step function in torch, so using sign instead
@@ -80,6 +86,7 @@ class VAE(nn.Module):
             z = z + (z_hard - z).detach()
 
         return self.decode(z), z
+        # return self.decode(z), log_probs
 
 
 model = VAE().to(device)

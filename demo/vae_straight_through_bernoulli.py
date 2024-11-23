@@ -62,9 +62,17 @@ class VAE(nn.Module):
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x, hard=False):
-        a = self.encode(x.view(-1, 784)).float()
+        a = self.encode(x.view(-1, 784))
+        # print(a.requires_grad)
+        a = a.float()
+        # print(a.requires_grad))
+
         q_z = StraightThroughBernoulli(a)
-        z = q_z.rsample().float()  # sample with reparameterization
+        
+        z = q_z.rsample()
+        # print(z.requires_grad )
+        z = z.float()  # sample with reparameterization
+        # raise Exception('TEST')
 
         if hard:
             # No step function in torch, so using sign instead
