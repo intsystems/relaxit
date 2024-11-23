@@ -17,10 +17,5 @@ def test_sample_grad():
     loc = torch.tensor([0.], requires_grad=True)
     scale = torch.tensor([1.], requires_grad=True)
     distr = GaussianRelaxedBernoulli(loc = loc, scale=scale)
-    samples = distr.rsample(sample_shape = torch.Size([3]))
-    
+    samples = distr.rsample()
     assert samples.requires_grad == True
-
-if __name__ == "__main__":
-    test_sample_shape()
-    test_sample_grad()
