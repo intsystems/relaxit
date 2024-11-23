@@ -12,11 +12,8 @@ class GumbelSoftmaxTopK(TorchDistribution):
     :type a: torch.Tensor
     :param K: how many samples without replacement to pick.
     :type K: int
-    :param support: support of the discrete distribution. If None, it will be `torch.arange(a.numel()).reshape(a.shape)`. It must be the same `len` as `a`.
-    Parameters:
-    - a (Tensor): logits, if not from Simples, we project a into it
-    - K (int): how many samples without replacement to pick
-    - support (Tensor): support of the discrete distribution. If None, it will be `torch.range(len(a))`. It must be the same `len` as `a`.
+    :param support: support of the discrete distribution. If None, it will be `torch.arange(a.numel()).reshape(a.shape)`. It must be the same `shape` as `a`.
+    :type support: torch.Tensor
     """
 
     arg_constraints = {'a': constraints.real}
