@@ -4,6 +4,7 @@ from .StraightThroughBernoulli import StraightThroughBernoulli
 from .HardConcrete import HardConcrete
 from .InvertibleGaussian import InvertibleGaussian
 from .LogisticNormalSoftmax import LogisticNormalSoftmax
+from .GumbelSoftmaxTopK import GumbelSoftmaxTopK
 
 __all__ = [
     "GaussianRelaxedBernoulli",
@@ -12,4 +13,5 @@ __all__ = [
     "HardConcrete",
     "InvertibleGaussian",
     "LogisticNormalSoftmax",
+    "GumbelSoftmaxTopK",
 ]

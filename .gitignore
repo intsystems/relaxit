@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 codecov
+demo/reinforce_my.py
+demo/test.py
 
 # C extensions
 *.so
