@@ -55,8 +55,10 @@ class StraightThroughBernoulli(TorchDistribution):
         Returns:
         - torch.Tensor: A sample from the distribution.
         """
-        eps = self.uniform.sample(sample_shape)
+        eps = self.uniform.sample(sample_shape).to(self.a.device)
+        print(eps > torch.nn.functional.sigmoid(self.a))
         z = torch.where(eps > torch.nn.functional.sigmoid(self.a), 1, 0)
+        print(z.requires_grad)
         return z
 
     def sample(self, sample_shape: torch.Size = torch.Size()) -> torch.Tensor:
