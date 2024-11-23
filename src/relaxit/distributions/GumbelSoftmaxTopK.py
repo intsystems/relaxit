@@ -8,6 +8,11 @@ class GumbelSoftmaxTopK(TorchDistribution):
     """
     Implimentation of the Gaussian-soft max topK trick from https://arxiv.org/pdf/1903.06059
 
+    :param a: logits, if not from Simples, we project a into it.
+    :type a: torch.Tensor
+    :param K: how many samples without replacement to pick.
+    :type K: int
+    :param support: support of the discrete distribution. If None, it will be `torch.arange(a.numel()).reshape(a.shape)`. It must be the same `len` as `a`.
     Parameters:
     - a (Tensor): logits, if not from Simples, we project a into it
     - K (int): how many samples without replacement to pick

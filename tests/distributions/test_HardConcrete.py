@@ -24,7 +24,3 @@ def test_sample_grad():
     samples = distr.rsample(sample_shape = torch.Size([3]))
     
     assert samples.requires_grad == True
-
-if __name__ == "__main__":
-    test_sample_shape()
-    test_sample_grad()
