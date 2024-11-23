@@ -23,6 +23,13 @@ def test_sample_grad():
     samples = distr.rsample()
     assert samples.requires_grad == True
 
-if __name__ == "__main__":
-    test_sample_shape()
-    test_sample_grad()
+def test_log_prob():
+    pi = torch.tensor([0.1, 0.2, 0.3], requires_grad=True)
+    R = torch.tensor([[1.]])
+    tau = torch.tensor([2.])
+
+    distr = CorrelatedRelaxedBernoulli(pi=pi, R=R, tau=tau)
+    value = torch.tensor([1.])
+    log_prob = distr.log_prob(value)
+    assert log_prob.shape == torch.Size([3])
+    assert log_prob.requires_grad == True

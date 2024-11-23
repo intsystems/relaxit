@@ -24,3 +24,15 @@ def test_sample_grad():
     samples = distr.rsample(sample_shape = torch.Size([3]))
     
     assert samples.requires_grad == True
+
+def test_log_prob():
+    alpha = torch.tensor([1.], requires_grad=True)
+    beta = torch.tensor([2.], requires_grad=True)
+    gamma = torch.tensor([-3.], requires_grad=True)
+    xi = torch.tensor([4.], requires_grad=True)
+    distr = HardConcrete(alpha=alpha, beta=beta, gamma=gamma, xi=xi)
+
+    value = torch.tensor([1.])
+    log_prob = distr.log_prob(value)
+    assert log_prob.shape == torch.Size([1])
+    assert log_prob.requires_grad == True
