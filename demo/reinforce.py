@@ -1,4 +1,4 @@
-import argparse, os, sys
+import argparse
 import gym
 import numpy as np
 from itertools import count
@@ -20,7 +20,6 @@ parser.add_argument('--render', action='store_true',
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='interval between training status logs (default: 10)')
 args = parser.parse_args()
-
 
 env = gym.make('Acrobot-v1')
 env.reset(seed=args.seed)
@@ -55,7 +54,6 @@ def select_action(state):
     probs = policy(state)
     m = Categorical(probs)
     action = m.sample()
-    print(m.log_prob(action))
     policy.saved_log_probs.append(m.log_prob(action))
     return action.item()
 
