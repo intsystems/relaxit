@@ -55,6 +55,7 @@ def select_action(state):
     probs = policy(state)
     m = Categorical(probs)
     action = m.sample()
+    print(m.log_prob(action))
     policy.saved_log_probs.append(m.log_prob(action))
     return action.item()
 
