@@ -63,17 +63,11 @@ class VAE(nn.Module):
 
     def forward(self, x, hard=False):
         a = self.encode(x.view(-1, 784))
-        # print(a.requires_grad)
         a = a.float()
-        # print(a.requires_grad))
-
         q_z = StraightThroughBernoulli(a)
-        
+    
         z = q_z.rsample()
-        # print(z.requires_grad )
-        z = z.float()  # sample with reparameterization
-        # raise Exception('TEST')
-
+        z = z.float()  
         if hard:
             # No step function in torch, so using sign instead
             z_hard = 0.5 * (torch.sign(z) + 1)
@@ -91,7 +85,7 @@ def loss_function(recon_x, x, a, prior=0.5, eps=1e-10):
     BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
     # You can also compute p(x|z) as below, for binary output it reduces
     # to binary cross entropy error, for gaussian output it reduces to
-    q_z = 1 - torch.sigmoid(a)
+    q_z = torch.sigmoid(a)
     t1 = q_z * ((q_z + eps) / prior).log()
     t2 = (1 - q_z) * ((1 - q_z + eps) / (1 - prior)).log()
     KLD = torch.sum(t1 + t2, dim=-1).sum() 

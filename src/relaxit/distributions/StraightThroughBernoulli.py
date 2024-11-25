@@ -55,10 +55,9 @@ class StraightThroughBernoulli(TorchDistribution):
         Returns:
         - torch.Tensor: A sample from the distribution.
         """
-        eps = self.uniform.sample(sample_shape).to(self.a.device)
-        print(eps > torch.nn.functional.sigmoid(self.a))
-        z = torch.where(eps > torch.nn.functional.sigmoid(self.a), 1, 0)
-        print(z.requires_grad)
+        p = torch.nn.functional.sigmoid(self.a)
+        b = torch.distributions.Bernoulli(torch.sqrt(p)).sample(sample_shape=sample_shape)
+        z = torch.sqrt(p) * b
         return z
 
     def sample(self, sample_shape: torch.Size = torch.Size()) -> torch.Tensor:
@@ -86,9 +85,9 @@ class StraightThroughBernoulli(TorchDistribution):
         """
         if self._validate_args:
             self._validate_sample(value)
-        sigmoid = torch.nn.functional.sigmoid(self.a)
-        log_prob = torch.where(value == 0, torch.log(sigmoid), log_prob)
-        log_prob = torch.where(value == 1, torch.log(1 - sigmoid), log_prob)
+        p = torch.nn.functional.sigmoid(self.a)
+        
+        log_prob = torch.where(value == 0, torch.log( 1 - p), torch.log(p))
         return log_prob
 
     def _validate_sample(self, value: torch.Tensor):
@@ -99,5 +98,5 @@ class StraightThroughBernoulli(TorchDistribution):
         - value (Tensor): The sample value to validate.
         """
         if self._validate_args:
-            if (value != 0 and value != 1).any() :
-                raise ValueError("Sample value must be 1 or 0")
+            if (value < 0 ).any() :
+                raise ValueError("Sample value must be non negative")
