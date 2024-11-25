@@ -22,7 +22,7 @@
 <!--         <img alt="Tests Coverage" src="https://codecov.io/gh/intsystems/discrete-variables-relaxation/branch/main/graph/badge.svg" /> -->
 <!--     </a> -->
     <a href="https://github.com/intsystems/discrete-variables-relaxation/blob/main/LICENSE">
-        <img alt="License" src="https://badgen.net/github/license/kisnikser/loss-landscape-scaling-law?color=green" />
+        <img alt="License" src="https://badgen.net/github/license/intsystems/discrete-variables-relaxation?color=green" />
     </a>
     <a href="https://github.com/intsystems/discrete-variables-relaxation/graphs/contributors">
         <img alt="GitHub Contributors" src="https://img.shields.io/github/contributors/intsystems/discrete-variables-relaxation" />
