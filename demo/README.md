@@ -1,8 +1,5 @@
 # Demo experiments code
-
-In this repository, we introduce our demo code. The main demo code can be viewed in notebook `demo/demo.ipynb`. Open the notebook and run the cells.
-Below, in section [Additional experiments](#experiments) is an example of running additional experiments.
-To start any experiments, first go through all the installation steps from [Installation](#installation) section.
+This repository contains our demo code for various experiments. The main demo code can be found in the notebook `demo/demo.ipynb`. Open the notebook and run the cells to see the demonstration in action. For additional experiments, refer to the section [Additional experiments](#experiments). Before starting any experiments, ensure you follow all the installation steps outlined in the [Installation](#installation) section.
 
 ## Installation <a name="installation"></a>
 
@@ -29,8 +26,9 @@ conda activate relaxit-demo
 ```
 ## Additional experiments<a name="experiments"></a>
 
-For additional demo experiments we have implemented VAEs with different latent discrete distributions from **Just Relax It**. We borrowed it from the [pytorch repo](https://github.com/pytorch/examples/tree/main/vae). 
-1. To run the additional demo code with VAEs, you should firstly train all the models and save their results. Run the following:
+For additional demo experiments, we have implemented Variational Autoencoders (VAEs) with different latent discrete distributions from **Just Relax It**. These implementations are adapted from the [PyTorch](https://github.com/pytorch/examples/tree/main/vae) examples repository.
+1. **Train and save the models:**
+   To run the additional demo code with VAEs, you need to train all the models and save their results. Execute the following commands:
     ```bash
     # VAE with Gaussian Bernoulli latent space
     python vae_gaussian_bernoulli.py
@@ -50,14 +48,15 @@ For additional demo experiments we have implemented VAEs with different latent d
     # VAE with Gumbel Softmax TopK latent space
     python vae_gumbel_softmax_topk.py
     ```
-2. As you finished the training and testing of all the models, you can see the results of sampling and reconstruction methods in the directory `demo/results`.
+2. **View the results:**
+    After completing the training and testing of all the models, you can find the results of sampling and reconstruction methods in the directory `demo/results`.
 
 Moreover, we conducted experiments with Laplace Bridge between LogisticNormal and Dirichlet distributions. We use two-side Laplace bridge to approximate:
 - Dirichlet using logisticNormal
 - LogisticNormal using Dirichlet
   
-Thus, we find the best parameters to make the distributions almost the same on the simplex. These experiments can be found in the notebook `demo/laplace-bridge.ipynb`.
+These experiments aim to find the best parameters to make the distributions nearly identical on the simplex. The experiments can be found in the notebook `demo/laplace-bridge.ipynb`.
 
-In addition, the Reinforce algorithm is applied in the [Acrobot environment](https://www.gymlibrary.dev/environments/classic_control/acrobot/). Detailed experiments can be viewed in the notebook `demo/reinforce.ipynb`. A script `demo/reinforce.py` can also be used for training.
+Furthermore, the Reinforce algorithm is applied in the [Acrobot environment](https://www.gymlibrary.dev/environments/classic_control/acrobot/). Detailed experiments can be viewed in the notebook `demo/reinforce.ipynb`. A script `demo/reinforce.py` can also be used for training.
 
 
