@@ -4,8 +4,9 @@ from torch.distributions import constraints
 from pyro.distributions.torch_distribution import TorchDistribution
 from torch.distributions import constraints
 
+
 class GumbelSoftmaxTopK(TorchDistribution):
-    r'''
+    r"""
     Implimentation of the Gaussian-soft max topK trick from https://arxiv.org/pdf/1903.06059
 
     :param a: logits.
@@ -18,16 +19,24 @@ class GumbelSoftmaxTopK(TorchDistribution):
     :type hard: bool
     :param validate_args: Whether to validate arguments.
     :type validate_args: bool
-    '''
+    """
 
-    arg_constraints = {'a'  : constraints.real, 
-                       'K'  : constraints.positive_integer,
-                       'tau': constraints.positive}
+    arg_constraints = {
+        "a": constraints.real,
+        "K": constraints.positive_integer,
+        "tau": constraints.positive,
+    }
     has_rsample = True
 
-    def __init__(self, a: torch.Tensor, K: torch.Tensor, 
-                 tau: torch.Tensor, hard: bool = True, validate_args: bool = None):
-        r''' Initializes the GumbelSoftmaxTopK distribution.
+    def __init__(
+        self,
+        a: torch.Tensor,
+        K: torch.Tensor,
+        tau: torch.Tensor,
+        hard: bool = True,
+        validate_args: bool = None,
+    ):
+        r"""Initializes the GumbelSoftmaxTopK distribution.
 
         :param a: logits.
         :type a: torch.Tensor
@@ -39,9 +48,9 @@ class GumbelSoftmaxTopK(TorchDistribution):
         :type hard: bool
         :param validate_args: Whether to validate arguments.
         :type validate_args: bool
-        '''
+        """
         self.a = a.float()  # Ensure loc is a float tensor
-        self.K = K.int()  # Ensure K is a int tensor   
+        self.K = K.int()  # Ensure K is a int tensor
         self.tau = tau
         self.hard = hard
         super().__init__(validate_args=validate_args)
@@ -92,7 +101,7 @@ class GumbelSoftmaxTopK(TorchDistribution):
         """
         with torch.no_grad():
             return self.rsample()
-        
+
     def log_prob(self, value: torch.Tensor) -> torch.Tensor:
         """
         Computes the log probability of the given value.
@@ -114,7 +123,11 @@ class GumbelSoftmaxTopK(TorchDistribution):
         - value (Tensor): The sample value to validate.
         """
         if self._validate_args:
-            if self.hard and ((value != 1.) & (value != 0.)).any():
-                ValueError(f"If `self.hard` is `True`, then all coordinates in `value` must be 0 or 1 and you have {value}")
+            if self.hard and ((value != 1.0) & (value != 0.0)).any():
+                ValueError(
+                    f"If `self.hard` is `True`, then all coordinates in `value` must be 0 or 1 and you have {value}"
+                )
             if not self.hard and (value < 0).any():
-                ValueError(f"If `self.hard` is `False`, then all coordinates in `value` must be >= 0 and you have {value}")
+                ValueError(
+                    f"If `self.hard` is `False`, then all coordinates in `value` must be >= 0 and you have {value}"
+                )

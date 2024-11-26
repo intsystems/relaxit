@@ -9,7 +9,7 @@ from .GumbelSoftmaxTopK import GumbelSoftmaxTopK
 __all__ = [
     "GaussianRelaxedBernoulli",
     "CorrelatedRelaxedBernoulli",
-    "StraightThroughBernoulli", 
+    "StraightThroughBernoulli",
     "HardConcrete",
     "InvertibleGaussian",
     "LogisticNormalSoftmax",

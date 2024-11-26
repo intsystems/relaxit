@@ -1,9 +1,11 @@
 import torch
 import sys
-sys.path.append('../../src')
+
+sys.path.append("../../src")
 from relaxit.distributions.InvertibleGaussian import InvertibleGaussian
 
 # Testing reparameterized sampling from the InvertibleGaussian distribution
+
 
 def test_sample_shape():
     loc = torch.zeros(3, 4, 5, requires_grad=True)
@@ -12,7 +14,8 @@ def test_sample_shape():
     distribution = InvertibleGaussian(loc, scale, temperature)
     sample = distribution.rsample()
     assert sample.shape == torch.Size([3, 4, 6])
-    
+
+
 def test_sample_grad():
     loc = torch.zeros(3, 4, 5, requires_grad=True)
     scale = torch.ones(3, 4, 5, requires_grad=True)
@@ -20,7 +23,8 @@ def test_sample_grad():
     distribution = InvertibleGaussian(loc, scale, temperature)
     sample = distribution.rsample()
     assert sample.requires_grad == True
-    
+
+
 def test_log_prob_shape():
     loc = torch.zeros(3, 4, 5, requires_grad=True)
     scale = torch.ones(3, 4, 5, requires_grad=True)
@@ -29,7 +33,8 @@ def test_log_prob_shape():
     value = 0.5 * torch.ones(3, 4, 6)
     log_prob = distribution.log_prob(value)
     assert log_prob.shape == torch.Size([3, 4, 5])
-    
+
+
 def test_log_prob_grad():
     loc = torch.zeros(3, 4, 5, requires_grad=True)
     scale = torch.ones(3, 4, 5, requires_grad=True)

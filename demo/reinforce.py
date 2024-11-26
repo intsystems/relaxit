@@ -9,6 +9,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.distributions import Categorical
 
+
 def parse_arguments() -> argparse.Namespace:
     """
     Parse command line arguments.
@@ -16,27 +17,40 @@ def parse_arguments() -> argparse.Namespace:
     Returns:
         argparse.Namespace: Parsed command line arguments.
     """
-    parser = argparse.ArgumentParser(description='PyTorch REINFORCE example')
-    parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
-                        help='discount factor (default: 0.99)')
-    parser.add_argument('--seed', type=int, default=543, metavar='N',
-                        help='random seed (default: 543)')
-    parser.add_argument('--render', action='store_true',
-                        help='render the environment')
-    parser.add_argument('--log-interval', type=int, default=10, metavar='N',
-                        help='interval between training status logs (default: 10)')
+    parser = argparse.ArgumentParser(description="PyTorch REINFORCE example")
+    parser.add_argument(
+        "--gamma",
+        type=float,
+        default=0.99,
+        metavar="G",
+        help="discount factor (default: 0.99)",
+    )
+    parser.add_argument(
+        "--seed", type=int, default=543, metavar="N", help="random seed (default: 543)"
+    )
+    parser.add_argument("--render", action="store_true", help="render the environment")
+    parser.add_argument(
+        "--log-interval",
+        type=int,
+        default=10,
+        metavar="N",
+        help="interval between training status logs (default: 10)",
+    )
     return parser.parse_args()
+
 
 args = parse_arguments()
 
-env = gym.make('Acrobot-v1')
+env = gym.make("Acrobot-v1")
 env.reset(seed=args.seed)
 torch.manual_seed(args.seed)
+
 
 class Policy(nn.Module):
     """
     Policy network for the REINFORCE algorithm.
     """
+
     def __init__(self) -> None:
         super(Policy, self).__init__()
         self.affine1 = nn.Linear(6, 128)
@@ -62,9 +76,11 @@ class Policy(nn.Module):
         action_scores = self.affine2(x)
         return F.softmax(action_scores, dim=1)
 
+
 policy = Policy()
 optimizer = optim.Adam(policy.parameters(), lr=1e-2)
 eps = np.finfo(np.float32).eps.item()
+
 
 def select_action(state: np.ndarray) -> int:
     """
@@ -82,6 +98,7 @@ def select_action(state: np.ndarray) -> int:
     action = m.sample()
     policy.saved_log_probs.append(m.log_prob(action))
     return action.item()
+
 
 def finish_episode() -> None:
     """
@@ -104,6 +121,7 @@ def finish_episode() -> None:
     del policy.rewards[:]
     del policy.saved_log_probs[:]
 
+
 def main() -> None:
     """
     Main function to run the REINFORCE algorithm.
@@ -125,12 +143,18 @@ def main() -> None:
         running_reward = 0.05 * ep_reward + (1 - 0.05) * running_reward
         finish_episode()
         if i_episode % args.log_interval == 0:
-            print('Episode {}\tLast reward: {:.2f}\tAverage reward: {:.2f}'.format(
-                  i_episode, ep_reward, running_reward))
+            print(
+                "Episode {}\tLast reward: {:.2f}\tAverage reward: {:.2f}".format(
+                    i_episode, ep_reward, running_reward
+                )
+            )
         if running_reward > env.spec.reward_threshold:
-            print("Solved! Running reward is now {} and "
-                  "the last episode runs to {} time steps!".format(running_reward, t))
+            print(
+                "Solved! Running reward is now {} and "
+                "the last episode runs to {} time steps!".format(running_reward, t)
+            )
             break
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

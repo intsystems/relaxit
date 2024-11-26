@@ -13,36 +13,42 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('../../src/'))
+sys.path.insert(0, os.path.abspath("../../src/"))
 
 from relaxit import __version__
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'Relaxit'
-copyright = '2024, Dorin Daniil, Igor Ignashin, Nikita Kiselev, Andrey Veprikov'
-author = 'Dorin Daniil, Igor Ignashin, Nikita Kiselev, Andrey Veprikov'
+project = "Relaxit"
+copyright = "2024, Dorin Daniil, Igor Ignashin, Nikita Kiselev, Andrey Veprikov"
+author = "Dorin Daniil, Igor Ignashin, Nikita Kiselev, Andrey Veprikov"
 
 version = __version__
-master_doc = 'index'
+master_doc = "index"
 
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 
-              'sphinx.ext.intersphinx', 'sphinx.ext.todo',
-              'sphinx.ext.ifconfig', 'sphinx.ext.viewcode',
-              'sphinx.ext.inheritance_diagram',
-              'sphinx.ext.autosummary', 'sphinx.ext.mathjax',
-              'sphinx_rtd_theme']
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.doctest",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.todo",
+    "sphinx.ext.ifconfig",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.inheritance_diagram",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.mathjax",
+    "sphinx_rtd_theme",
+]
 
 autodoc_mock_imports = ["numpy", "scipy", "sklearn"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -52,11 +58,11 @@ exclude_patterns = []
 html_extra_path = []
 
 html_context = {
-    "display_github": True, # Integrate GitHub
-    "github_user": "Intelligent-Systems-Phystech", # Username
-    "github_repo": "discrete-variables-relaxation", # Repo name
-    "github_version": "main", # Version
-    "conf_py_path": "./doc/source/", # Path in the checkout to the docs root
+    "display_github": True,  # Integrate GitHub
+    "github_user": "Intelligent-Systems-Phystech",  # Username
+    "github_repo": "discrete-variables-relaxation",  # Repo name
+    "github_version": "main",  # Version
+    "conf_py_path": "./doc/source/",  # Path in the checkout to the docs root
 }
 
 
@@ -65,10 +71,9 @@ html_context = {
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
-
+html_static_path = ["_static"]
