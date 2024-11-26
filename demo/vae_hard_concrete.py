@@ -9,21 +9,31 @@ from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
+sys.path.append(os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..', 'src')))
 from relaxit.distributions import HardConcrete
 
-parser = argparse.ArgumentParser(description='VAE MNIST Example')
-parser.add_argument('--batch-size', type=int, default=128, metavar='N',
-                    help='input batch size for training (default: 128)')
-parser.add_argument('--epochs', type=int, default=20, metavar='N',
-                    help='number of epochs to train (default: 10)')
-parser.add_argument('--no-cuda', action='store_true', default=False,
-                    help='enables CUDA training')
-parser.add_argument('--seed', type=int, default=1, metavar='S',
-                    help='random seed (default: 1)')
-parser.add_argument('--log_interval', type=int, default=10, metavar='N',
-                    help='how many batches to wait before logging training status')
-args = parser.parse_args()
+def parse_arguments() -> argparse.Namespace:
+    """
+    Parse command line arguments.
+
+    Returns:
+        argparse.Namespace: Parsed command line arguments.
+    """
+    parser = argparse.ArgumentParser(description='VAE MNIST Example')
+    parser.add_argument('--batch-size', type=int, default=128, metavar='N',
+                        help='input batch size for training (default: 128)')
+    parser.add_argument('--epochs', type=int, default=10, metavar='N',
+                        help='number of epochs to train (default: 10)')
+    parser.add_argument('--no-cuda', action='store_true', default=False,
+                        help='enables CUDA training')
+    parser.add_argument('--seed', type=int, default=1, metavar='S',
+                        help='random seed (default: 1)')
+    parser.add_argument('--log_interval', type=int, default=10, metavar='N',
+                        help='how many batches to wait before logging training status')
+    return parser.parse_args()
+
+args = parse_arguments()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 torch.manual_seed(args.seed)
@@ -43,9 +53,11 @@ test_loader = torch.utils.data.DataLoader(
 
 steps = 0
 
-
 class VAE(nn.Module):
-    def __init__(self):
+    """
+    Variational Autoencoder (VAE) with HardConcrete distribution.
+    """
+    def __init__(self) -> None:
         super(VAE, self).__init__()
 
         self.fc1 = nn.Linear(784, 400)
@@ -56,64 +68,99 @@ class VAE(nn.Module):
         self.fc3 = nn.Linear(20, 400)
         self.fc4 = nn.Linear(400, 784)
 
-    def encode(self, x):
+    def encode(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """
+        Encode the input by passing through the encoder network
+        and return the parameters for the HardConcrete distribution.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: Parameters alpha, beta, xi, gamma.
+        """
         h1 = F.relu(self.fc1(x))
-        # alpha = torch.exp(self.fc21(h1))  # alpha > 0
-        alpha = torch.clamp(self.fc21(h1) , min = torch.tensor(1e-5) ,max = torch.tensor(100) )
-        # beta = torch.exp(self.fc22(h1))   # beta > 0
-        beta = torch.clamp(self.fc22(h1) , min = torch.tensor(1e-5) ,max = torch.tensor(1000) )
-        # Почему-то не выполняется условие xi > 1 сели добавлять ровно 1.0
-        # xi = torch.exp(self.fc23(h1)) + torch.tensor([1.0 + 1e-5], device=device) # xi > 1.0
-        xi = torch.clamp(self.fc23(h1) , min = torch.tensor(1 + 1e-5) ,max = torch.tensor(3) )
-        # gamma = - torch.exp(self.fc24(h1))  # gamma < 0.0
-        gamma = torch.clamp(self.fc24(h1), min = torch.tensor(-3) ,max = torch.tensor(-1e-5) )
+        alpha = torch.clamp(self.fc21(h1), min=1e-5, max=100)
+        beta = torch.clamp(self.fc22(h1), min=1e-5, max=1000)
+        xi = torch.clamp(self.fc23(h1), min=1 + 1e-5, max=3)
+        gamma = torch.clamp(self.fc24(h1), min=-3, max=-1e-5)
         return alpha, beta, xi, gamma
 
-    def decode(self, z):
+    def decode(self, z: torch.Tensor) -> torch.Tensor:
+        """
+        Decode the latent code by passing through the decoder network
+        and return the reconstructed input.
+
+        Args:
+            z (torch.Tensor): Latent code.
+
+        Returns:
+            torch.Tensor: Reconstructed input.
+        """
         h3 = F.relu(self.fc3(z))
         return torch.sigmoid(self.fc4(h3))
 
-    def forward(self, x, hard=False):
+    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward pass through the VAE.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            tuple[torch.Tensor, torch.Tensor]: Reconstructed input and latent code.
+        """
         alpha, beta, xi, gamma = self.encode(x.view(-1, 784))
         q_z = HardConcrete(alpha=alpha, beta=beta, xi=xi, gamma=gamma)
-        
         z = q_z.rsample()  # sample with reparameterization
-        # log_probs = q_z.log_prob(z)
-
-        if hard:
-            # No step function in torch, so using sign instead
-            z_hard = 0.5 * (torch.sign(z) + 1)
-            z = z + (z_hard - z).detach()
 
         return self.decode(z), z
-        # return self.decode(z), log_probs
-
 
 model = VAE().to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
+def loss_function(
+    recon_x: torch.Tensor,
+    x: torch.Tensor,
+    q_z: torch.Tensor,
+    prior: float = 0.5,
+    eps: float = 1e-10
+) -> torch.Tensor:
+    """
+    Compute the loss function for the VAE.
 
-# Reconstruction + KL divergence losses summed over all elements and batch
-def loss_function(recon_x, x, q_z, prior=0.5, eps=1e-10):
+    Args:
+        recon_x (torch.Tensor): Reconstructed input.
+        x (torch.Tensor): Original input.
+        q_z (torch.Tensor): Latent code.
+        prior (float): Prior probability.
+        eps (float): Small value to avoid log(0).
+
+    Returns:
+        torch.Tensor: Loss value.
+    """
     BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
-    # You can also compute p(x|z) as below, for binary output it reduces
-    # to binary cross entropy error, for gaussian output it reduces to
     t1 = q_z * ((q_z + eps) / prior).log()
     t2 = (1 - q_z) * ((1 - q_z + eps) / (1 - prior)).log()
     KLD = torch.sum(t1 + t2, dim=-1).sum()
 
     return BCE + KLD
 
+def train(epoch: int) -> None:
+    """
+    Train the VAE for one epoch.
 
-def train(epoch):
+    Args:
+        epoch (int): Current epoch number.
+    """
     global steps
     model.train()
     train_loss = 0
     for batch_idx, (data, _) in enumerate(train_loader):
         data = data.to(device)
         optimizer.zero_grad()
-        recon_batch, z = model(data)
-        loss = loss_function(recon_batch, data, z)
+        recon_batch, q_z = model(data)
+        loss = loss_function(recon_batch, data, q_z)
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
@@ -129,15 +176,20 @@ def train(epoch):
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
 
+def test(epoch: int) -> None:
+    """
+    Test the VAE for one epoch.
 
-def test(epoch):
+    Args:
+        epoch (int): Current epoch number.
+    """
     model.eval()
     test_loss = 0
     with torch.no_grad():
         for i, (data, _) in enumerate(test_loader):
             data = data.to(device)
-            recon_batch, z = model(data)
-            test_loss += loss_function(recon_batch, data, z).item()
+            recon_batch, q_z = model(data)
+            test_loss += loss_function(recon_batch, data, q_z).item()
             if i == 0:
                 n = min(data.size(0), 8)
                 comparison = torch.cat([data[:n],
@@ -147,7 +199,6 @@ def test(epoch):
 
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
-
 
 if __name__ == "__main__":
     for epoch in range(1, args.epochs + 1):
