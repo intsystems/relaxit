@@ -18,7 +18,7 @@ conda create --name relaxit-demo python=3.10
 # Activate the conda environment:
 conda activate relaxit-demo
 
-Install Dependencies
+# Install Dependencies
 pip install -r requirements.txt
 ```
 ## Additional experiments<a name="experiments"></a>
