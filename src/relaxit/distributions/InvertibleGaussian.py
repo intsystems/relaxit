@@ -122,7 +122,7 @@ class InvertibleGaussian(TorchDistribution):
         log_det_jacobian = - (K - 1) * torch.log(self.temperature).item() + torch.sum(torch.log(g), dim=-1, keepdim=True) + torch.log(residual)
 
         # Adjust the log probability by the Jacobian determinant
-        log_prob = log_prob_normal + log_det_jacobian
+        log_prob = log_prob_normal - log_det_jacobian
 
         return log_prob
         
