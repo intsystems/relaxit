@@ -55,7 +55,7 @@ For additional demo experiments we have implemented a VAE. We borrowed it from t
     # VAE with Gumbel Softmax TopK latent space
     python vae_gumbel_softmax_topk.py
 
-    # Reinforce training in the [Acrobot environment](https://www.gymlibrary.dev/environments/classic_control/acrobot/)
+    # Reinforce training in the Acrobot environment
     python reinforce.py
     ```
 2. As you finished the training and testing of all the models, you can see the results of sampling and reconstruction methods in the directory `demo/results`.
