@@ -93,16 +93,38 @@ class InvertibleGaussian(TorchDistribution):
         residual = 1 - torch.sum(g, dim=-1, keepdim=True)
         return torch.cat([g, residual], dim=-1)
 
-    # def log_prob(self, value):
-    #     """
-    #     Computes the log likelihood of a value.
+    def log_prob(self, value):
+        """
+        Computes the log likelihood of a value.
 
-    #     Args:
-    #     - value (Tensor): The value for which to compute the log probability.
-    #     """
-    #     var = self.scale ** 2
-    #     log_scale = torch.log(self.scale)
-    #     log_prob_norm = -((value - self.loc) ** 2) / (2 * var) - log_scale - 0.5 * torch.log(torch.tensor(2.0 * torch.pi, device=value.device))
+        Args:
+        - value (Tensor): The value for which to compute the log probability.
+        """
+        if self._validate_args:
+            self._validate_sample(value)
+
+        # Separate the value into g and residual
+        g = value[..., :-1]
+        residual = value[..., -1:]
+
+        # Invert the softmax++ transformation
+        y = self.temperature * (torch.log(g) - torch.log(1 - residual))
+
+        # Compute the log probability of the normal distribution
+        log_prob_normal = -0.5 * (
+            ((y - self.loc) / self.scale) ** 2 +
+            torch.log(2 * torch.tensor(torch.pi)) +
+            2 * torch.log(self.scale)
+        )
+
+        # Compute the Jacobian determinant of the softmax++ transformation
+        K = g.size(-1) + 1  # Number of classes including the residual
+        log_det_jacobian = - (K - 1) * torch.log(self.temperature).item() + torch.sum(torch.log(g), dim=-1, keepdim=True) + torch.log(residual)
+
+        # Adjust the log probability by the Jacobian determinant
+        log_prob = log_prob_normal + log_det_jacobian
+
+        return log_prob
         
 
     def _validate_sample(self, value: torch.Tensor):
