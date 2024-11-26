@@ -1,7 +1,7 @@
 # Demo experiments code
 
 In this repository, we introduce our demo code. The main demo code can be viewed in notebook `demo/demo.ipynb`. Open the notebook and run the cells.
-Below, in section [Usage](#usage) is an example of running additional experiments.
+Below, in section [Additional experiments](#experiments) is an example of running.
 To start any experiments, first go through all the installation steps from [Installation](#installation) section.
 
 ## Installation <a name="installation"></a>
@@ -27,15 +27,10 @@ Activate the conda environment:
 ```bash
 conda activate relaxit-demo
 ```
-## Additional experiments setup<a name="experiments"></a>
+## Additional experiments<a name="experiments"></a>
 
-For additional demo experiments we have implemented a VAE. We borrowed it from the [pytorch repo](https://github.com/pytorch/examples/tree/main/vae). 
-
-**Goal:** implement VAE with different latent discrete distributions
-
-## Usage <a name="usage"></a>
-
-1. To run the additional demo code, you should firstly train all the models and save their results. Run the following:
+For additional demo experiments we have implemented VAEs with different latent discrete distributions from **Just Relax It**. We borrowed it from the [pytorch repo](https://github.com/pytorch/examples/tree/main/vae). 
+1. To run the additional demo code with VAEs, you should firstly train all the models and save their results. Run the following:
     ```bash
     # VAE with Gaussian Bernoulli latent space
     python vae_gaussian_bernoulli.py
@@ -54,8 +49,14 @@ For additional demo experiments we have implemented a VAE. We borrowed it from t
 
     # VAE with Gumbel Softmax TopK latent space
     python vae_gumbel_softmax_topk.py
-
-    # Reinforce training in the Acrobot environment
-    python reinforce.py
     ```
 2. As you finished the training and testing of all the models, you can see the results of sampling and reconstruction methods in the directory `demo/results`.
+
+Moreover, we conducted experiments with Laplace Bridge between LogisticNormal and Dirichlet distributions. We use two-side Laplace bridge to approximate:
+- Dirichlet using logisticNormal
+- LogisticNormal using Dirichlet
+Thus, we find the best parameters to make the distributions almost the same on the simplex. These experiments can be found in the notebook `demo/laplace-bridge.ipynb`.
+
+In addition, the Reinforce algorithm is applied in the [Acrobot environment](https://www.gymlibrary.dev/environments/classic_control/acrobot/). Detailed experiments can be viewed in the notebook `demo/reinforce.ipynb`. A script `demo/reinforce.py` can also be used for training.
+
+
