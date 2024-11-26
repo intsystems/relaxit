@@ -11,16 +11,18 @@
     <a href="https://docs.pyro.ai/en/dev/distributions.html">
         <img alt="Inspired by Pyro" src="https://img.shields.io/badge/Inspired_by_Pyro-fecd08">
     </a>
-    <img src="coverage-badge.svg" />
 </p>
 
 <p align="center">
-<!--     <a href="https://github.com/intsystems/discrete-variables-relaxation/actions"> -->
-<!--         <img alt="Tests Passing" src="https://github.com/intsystems/discrete-variables-relaxation/workflows/Test/badge.svg" /> -->
-<!--     </a> -->
-<!--     <a href="https://codecov.io/gh/intsystems/discrete-variables-relaxation"> -->
-<!--         <img alt="Tests Coverage" src="https://codecov.io/gh/intsystems/discrete-variables-relaxation/branch/main/graph/badge.svg" /> -->
-<!--     </a> -->
+    <a href="https://github.com/intsystems/discrete-variables-relaxation/tree/main/tests">
+        <img alt="Coverage" src="coverage-badge.svg" />
+    </a>
+    <a href="https://intsystems.github.io/discrete-variables-relaxation">
+        <img alt="Docs" src="https://github.com/intsystems/discrete-variables-relaxation/actions/workflows/docs.yml/badge.svg" />
+    </a>
+</p>
+
+<p align="center">
     <a href="https://github.com/intsystems/discrete-variables-relaxation/blob/main/LICENSE">
         <img alt="License" src="https://badgen.net/github/license/intsystems/discrete-variables-relaxation?color=green" />
     </a>
