@@ -44,7 +44,7 @@
 
 1. [Technical Meeting 1 - Presentation](https://github.com/intsystems/discrete-variables-relaxation/blob/main/assets/presentation_tm1.pdf)
 2. [Technical Meeting 2 - Jupyter Notebook](https://github.com/intsystems/discrete-variables-relaxation/blob/main/basic/basic_code.ipynb)
-3. [Technical Meeting 3 — Jupyter Notebook](https://github.com/intsystems/discrete-variables-relaxation/blob/main/demo/vizualization.ipynb)
+3. [Technical Meeting 3 - Jupyter Notebook](https://github.com/intsystems/discrete-variables-relaxation/blob/main/demo/vizualization.ipynb)
 4. [Blog Post](https://github.com/intsystems/discrete-variables-relaxation/blob/main/assets/blog-post.pdf)
 5. [Documentation](https://intsystems.github.io/discrete-variables-relaxation/train.html)
 6. [Tests](https://github.com/intsystems/discrete-variables-relaxation/tree/main/tests)
