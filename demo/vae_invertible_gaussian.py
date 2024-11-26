@@ -2,32 +2,39 @@ import os
 import argparse
 import numpy as np
 import torch
+import sys
 import torch.utils.data
 from torch import nn, optim
 from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
-import torch.distributions as td
 
-import pyro
-import pyro.distributions as dist
-
-import sys
-sys.path.append('../src')
+sys.path.append(os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..', 'src')))
 from relaxit.distributions import InvertibleGaussian
+from relaxit.distributions.kl import kl_divergence
 
-parser = argparse.ArgumentParser(description='VAE MNIST Example')
-parser.add_argument('--batch-size', type=int, default=128, metavar='N',
-                    help='input batch size for training (default: 128)')
-parser.add_argument('--epochs', type=int, default=10, metavar='N',
-                    help='number of epochs to train (default: 10)')
-parser.add_argument('--no-cuda', action='store_true', default=False,
-                    help='enables CUDA training')
-parser.add_argument('--seed', type=int, default=1, metavar='S',
-                    help='random seed (default: 1)')
-parser.add_argument('--log_interval', type=int, default=10, metavar='N',
-                    help='how many batches to wait before logging training status')
-args = parser.parse_args()
+def parse_arguments() -> argparse.Namespace:
+    """
+    Parse command line arguments.
+
+    Returns:
+        argparse.Namespace: Parsed command line arguments.
+    """
+    parser = argparse.ArgumentParser(description='VAE MNIST Example')
+    parser.add_argument('--batch-size', type=int, default=128, metavar='N',
+                        help='input batch size for training (default: 128)')
+    parser.add_argument('--epochs', type=int, default=10, metavar='N',
+                        help='number of epochs to train (default: 10)')
+    parser.add_argument('--no-cuda', action='store_true', default=False,
+                        help='enables CUDA training')
+    parser.add_argument('--seed', type=int, default=1, metavar='S',
+                        help='random seed (default: 1)')
+    parser.add_argument('--log_interval', type=int, default=10, metavar='N',
+                        help='how many batches to wait before logging training status')
+    return parser.parse_args()
+
+args = parse_arguments()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 torch.manual_seed(args.seed)
@@ -54,9 +61,11 @@ N = 20  # Number of categorical distributions
 temp = INITIAL_TEMP
 steps = 0
 
-
 class VAE(nn.Module):
-    def __init__(self):
+    """
+    Variational Autoencoder (VAE) with Correlated Relaxed Bernoulli distribution.
+    """
+    def __init__(self) -> None:
         super(VAE, self).__init__()
 
         self.fc1 = nn.Linear(784, 400)
@@ -64,64 +73,105 @@ class VAE(nn.Module):
         self.fc3 = nn.Linear(N * K, 400)
         self.fc4 = nn.Linear(400, 784)
 
-    def encode(self, x):
+    def encode(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Encode the input by passing through the encoder network
+        and return the latent code.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            torch.Tensor: Latent code.
+        """
         h1 = F.relu(self.fc1(x))
         h2 = self.fc2(h1).reshape(-1, N, K - 1)
         loc, log_scale = h2.chunk(2)
         return loc, log_scale.exp()
 
-    def decode(self, z):
-        h3 = F.relu(self.fc3(z.view(-1, N*K)))
+    def decode(self, z: torch.Tensor) -> torch.Tensor:
+        """
+        Decode the latent code by passing through the decoder network
+        and return the reconstructed input.
+
+        Args:
+            z (torch.Tensor): Latent code.
+
+        Returns:
+            torch.Tensor: Reconstructed input.
+        """
+        z = z.reshape(z.shape[0], -1)
+        h3 = F.relu(self.fc3(z))
         return torch.sigmoid(self.fc4(h3))
 
-    def forward(self, x, temp=1.0, hard=False):
+    def forward(self, x: torch.Tensor, temp: float = 1.0) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward pass through the VAE.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+            temp (float): Relaxation temperature.
+
+        Returns:
+            tuple[torch.Tensor, InvertibleGaussian]: Reconstructed input and posterior distribution.
+        """
         loc, scale = self.encode(x.view(-1, 784))
         q_z = InvertibleGaussian(loc, scale, temp)
         z = q_z.rsample()  # sample with reparameterization
 
-        if hard:
-            # No step function in torch, so using sign instead
-            z_hard = 0.5 * (torch.sign(z) + 1)
-            z = z + (z_hard - z).detach()
-
-        return self.decode(z), z
-
+        return self.decode(z), q_z
 
 model = VAE().to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
+def loss_function(
+    recon_x: torch.Tensor,
+    x: torch.Tensor,
+    q_z: InvertibleGaussian,
+    prior: float = 0.5,
+    eps: float = 1e-10,
+    temp: float = 1.0
+) -> torch.Tensor:
+    """
+    Compute the loss function for the VAE.
 
-# Reconstruction + KL divergence losses summed over all elements and batch
-def loss_function(recon_x, x, probs, eps=1e-10):
+    Args:
+        recon_x (torch.Tensor): Reconstructed input.
+        x (torch.Tensor): Original input.
+        q_z (InvertibleGaussian): Posterior distribution.
+        prior (float): Prior probability.
+        eps (float): Small value to avoid log(0).
+        temp (float): Relaxation temperature.
+
+    Returns:
+        torch.Tensor: Loss value.
+    """
     BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
-    # You can also compute p(x|z) as below, for binary output it reduces
-    # to binary cross entropy error, for gaussian output it reduces to
-    # mean square error
-    # p_x = td.bernoulli.Bernoulli(logits=recon_x)
-    # BCE = -p_x.log_prob(x.view(-1, 784)).sum()
-
-    # see Appendix B from VAE paper:
-    # Kingma and Welling. Auto-Encoding Variational Bayes. ICLR, 2014
-    # https://arxiv.org/abs/1312.6114
-    # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
-
-    # KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-    prior = 1 / K
-    t1 = probs * ((probs + eps) / prior).log()
-    KLD = torch.sum(t1, dim=-1).sum()
+    ### CHANGE IT TO 1/K CATEGORICAL APPROXIMATION
+    p_z = InvertibleGaussian(
+        torch.zeros(q_z.batch_shape, device=x.device),
+        torch.ones(q_z.batch_shape, device=x.device),
+        temp
+    )
+    KLD = kl_divergence(q_z, p_z).sum()
 
     return BCE + KLD
 
+def train(epoch: int) -> None:
+    """
+    Train the VAE for one epoch.
 
-def train(epoch):
+    Args:
+        epoch (int): Current epoch number.
+    """
     global temp, steps
     model.train()
     train_loss = 0
     for batch_idx, (data, _) in enumerate(train_loader):
         data = data.to(device)
         optimizer.zero_grad()
-        recon_batch, probs = model(data, temp=temp)
-        loss = loss_function(recon_batch, data, probs)
+        recon_batch, q_z = model(data, temp)
+        loss = loss_function(recon_batch, data, q_z, temp)
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
@@ -139,16 +189,21 @@ def train(epoch):
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
 
+def test(epoch: int) -> None:
+    """
+    Test the VAE for one epoch.
 
-def test(epoch):
+    Args:
+        epoch (int): Current epoch number.
+    """
     global temp
     model.eval()
     test_loss = 0
     with torch.no_grad():
         for i, (data, _) in enumerate(test_loader):
             data = data.to(device)
-            recon_batch, q_z = model(data, temp=temp)
-            test_loss += loss_function(recon_batch, data, q_z).item()
+            recon_batch, q_z = model(data, temp)
+            test_loss += loss_function(recon_batch, data, q_z, temp).item()
             if i == 0:
                 n = min(data.size(0), 8)
                 comparison = torch.cat([data[:n],
@@ -158,7 +213,6 @@ def test(epoch):
 
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
-
 
 if __name__ == "__main__":
     for epoch in range(1, args.epochs + 1):
