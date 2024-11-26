@@ -2,7 +2,7 @@
 
 In this repository, we introduce our demo code. The main demo code can be viewed in notebook `demo/demo.ipynb`. Open the notebook and run the cells.
 Below, we provide a detailed analysis of [additional demo](#experiments) experiments.
-To run any of the experiments, follow the [Installation](#installation) and [Usage](#usage) sections.
+To start any experiments, first go through all the installation steps from [Installation](#installation) section.
 
 ## Installation <a name="installation"></a>
 
