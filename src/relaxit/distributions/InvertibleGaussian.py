@@ -12,21 +12,21 @@ class InvertibleGaussian(TorchDistribution):
     - loc (Tensor): The mean (mu) of the normal distribution.
     - scale (Tensor): The standard deviation (sigma) of the normal distribution.
     """
-    
-    arg_constraints = {'loc': constraints.real, 'scale': constraints.positive}
+
+    arg_constraints = {"loc": constraints.real, "scale": constraints.positive}
     support = constraints.real
     has_rsample = True
 
     def __init__(self, loc, scale, temperature, validate_args: bool = None):
         """
         Initializes the Invertible Gaussian distribution.
-        
+
         Args:
         - loc (Tensor): Mean of the normal distribution.
         - scale (Tensor): Standard deviation of the normal distribution.
         - validate_args (bool): Whether to validate arguments.
 
-        The batch shape is inferred from the shape of the parameters (loc and scale), 
+        The batch shape is inferred from the shape of the parameters (loc and scale),
         meaning it defines how many independent distributions are parameterized.
         """
         self.loc = loc
@@ -39,7 +39,7 @@ class InvertibleGaussian(TorchDistribution):
     def batch_shape(self):
         """
         Returns the batch shape of the distribution.
-        
+
         The batch shape represents the shape of independent distributions.
         """
         return self.loc.shape
@@ -48,8 +48,8 @@ class InvertibleGaussian(TorchDistribution):
     def event_shape(self):
         """
         Returns the event shape of the distribution.
-        
-        The event shape represents the shape of each individual event. 
+
+        The event shape represents the shape of each individual event.
         """
         return torch.Size()
 
@@ -112,20 +112,23 @@ class InvertibleGaussian(TorchDistribution):
 
         # Compute the log probability of the normal distribution
         log_prob_normal = -0.5 * (
-            ((y - self.loc) / self.scale) ** 2 +
-            torch.log(2 * torch.tensor(torch.pi)) +
-            2 * torch.log(self.scale)
+            ((y - self.loc) / self.scale) ** 2
+            + torch.log(2 * torch.tensor(torch.pi))
+            + 2 * torch.log(self.scale)
         )
 
         # Compute the Jacobian determinant of the softmax++ transformation
         K = g.size(-1) + 1  # Number of classes including the residual
-        log_det_jacobian = - (K - 1) * torch.log(self.temperature).item() + torch.sum(torch.log(g), dim=-1, keepdim=True) + torch.log(residual)
+        log_det_jacobian = (
+            -(K - 1) * torch.log(self.temperature).item()
+            + torch.sum(torch.log(g), dim=-1, keepdim=True)
+            + torch.log(residual)
+        )
 
         # Adjust the log probability by the Jacobian determinant
         log_prob = log_prob_normal - log_det_jacobian
 
         return log_prob
-        
 
     def _validate_sample(self, value: torch.Tensor):
         """
@@ -137,5 +140,3 @@ class InvertibleGaussian(TorchDistribution):
         if self._validate_args:
             if not (value >= 0).all() or not (value <= 1).all():
                 raise ValueError("Sample value must be in the range [0, 1]")
-            
-            

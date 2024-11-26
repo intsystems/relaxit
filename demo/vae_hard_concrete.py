@@ -9,9 +9,9 @@ from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 
-sys.path.append(os.path.abspath(os.path.join(
-    os.path.dirname(__file__), '..', 'src')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 from relaxit.distributions import HardConcrete
+
 
 def parse_arguments() -> argparse.Namespace:
     """
@@ -20,18 +20,36 @@ def parse_arguments() -> argparse.Namespace:
     Returns:
         argparse.Namespace: Parsed command line arguments.
     """
-    parser = argparse.ArgumentParser(description='VAE MNIST Example')
-    parser.add_argument('--batch-size', type=int, default=128, metavar='N',
-                        help='input batch size for training (default: 128)')
-    parser.add_argument('--epochs', type=int, default=10, metavar='N',
-                        help='number of epochs to train (default: 10)')
-    parser.add_argument('--no-cuda', action='store_true', default=False,
-                        help='enables CUDA training')
-    parser.add_argument('--seed', type=int, default=1, metavar='S',
-                        help='random seed (default: 1)')
-    parser.add_argument('--log_interval', type=int, default=10, metavar='N',
-                        help='how many batches to wait before logging training status')
+    parser = argparse.ArgumentParser(description="VAE MNIST Example")
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=128,
+        metavar="N",
+        help="input batch size for training (default: 128)",
+    )
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=10,
+        metavar="N",
+        help="number of epochs to train (default: 10)",
+    )
+    parser.add_argument(
+        "--no-cuda", action="store_true", default=False, help="enables CUDA training"
+    )
+    parser.add_argument(
+        "--seed", type=int, default=1, metavar="S", help="random seed (default: 1)"
+    )
+    parser.add_argument(
+        "--log_interval",
+        type=int,
+        default=10,
+        metavar="N",
+        help="how many batches to wait before logging training status",
+    )
     return parser.parse_args()
+
 
 args = parse_arguments()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -40,23 +58,32 @@ torch.manual_seed(args.seed)
 
 device = torch.device("cuda" if args.cuda else "cpu")
 
-os.makedirs('./results/vae_hard_concrete', exist_ok=True)
+os.makedirs("./results/vae_hard_concrete", exist_ok=True)
 
-kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
+kwargs = {"num_workers": 1, "pin_memory": True} if args.cuda else {}
 train_loader = torch.utils.data.DataLoader(
-    datasets.MNIST('./data', train=True, download=True,
-                   transform=transforms.ToTensor()),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
+    datasets.MNIST(
+        "./data", train=True, download=True, transform=transforms.ToTensor()
+    ),
+    batch_size=args.batch_size,
+    shuffle=True,
+    **kwargs
+)
 test_loader = torch.utils.data.DataLoader(
-    datasets.MNIST('./data', train=False, transform=transforms.ToTensor()),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
+    datasets.MNIST("./data", train=False, transform=transforms.ToTensor()),
+    batch_size=args.batch_size,
+    shuffle=True,
+    **kwargs
+)
 
 steps = 0
+
 
 class VAE(nn.Module):
     """
     Variational Autoencoder (VAE) with HardConcrete distribution.
     """
+
     def __init__(self) -> None:
         super(VAE, self).__init__()
 
@@ -68,7 +95,9 @@ class VAE(nn.Module):
         self.fc3 = nn.Linear(20, 400)
         self.fc4 = nn.Linear(400, 784)
 
-    def encode(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    def encode(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Encode the input by passing through the encoder network
         and return the parameters for the HardConcrete distribution.
@@ -116,15 +145,17 @@ class VAE(nn.Module):
 
         return self.decode(z), z
 
+
 model = VAE().to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
+
 
 def loss_function(
     recon_x: torch.Tensor,
     x: torch.Tensor,
     q_z: torch.Tensor,
     prior: float = 0.5,
-    eps: float = 1e-10
+    eps: float = 1e-10,
 ) -> torch.Tensor:
     """
     Compute the loss function for the VAE.
@@ -139,12 +170,13 @@ def loss_function(
     Returns:
         torch.Tensor: Loss value.
     """
-    BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
+    BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction="sum")
     t1 = q_z * ((q_z + eps) / prior).log()
     t2 = (1 - q_z) * ((1 - q_z + eps) / (1 - prior)).log()
     KLD = torch.sum(t1 + t2, dim=-1).sum()
 
     return BCE + KLD
+
 
 def train(epoch: int) -> None:
     """
@@ -166,15 +198,24 @@ def train(epoch: int) -> None:
         optimizer.step()
 
         if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader),
-                loss.item() / len(data)))
+            print(
+                "Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}".format(
+                    epoch,
+                    batch_idx * len(data),
+                    len(train_loader.dataset),
+                    100.0 * batch_idx / len(train_loader),
+                    loss.item() / len(data),
+                )
+            )
 
         steps += 1
 
-    print('====> Epoch: {} Average loss: {:.4f}'.format(
-          epoch, train_loss / len(train_loader.dataset)))
+    print(
+        "====> Epoch: {} Average loss: {:.4f}".format(
+            epoch, train_loss / len(train_loader.dataset)
+        )
+    )
+
 
 def test(epoch: int) -> None:
     """
@@ -192,13 +233,18 @@ def test(epoch: int) -> None:
             test_loss += loss_function(recon_batch, data, q_z).item()
             if i == 0:
                 n = min(data.size(0), 8)
-                comparison = torch.cat([data[:n],
-                                       recon_batch.view(args.batch_size, 1, 28, 28)[:n]])
-                save_image(comparison.cpu(),
-                           'results/vae_hard_concrete/reconstruction_' + str(epoch) + '.png', nrow=n)
+                comparison = torch.cat(
+                    [data[:n], recon_batch.view(args.batch_size, 1, 28, 28)[:n]]
+                )
+                save_image(
+                    comparison.cpu(),
+                    "results/vae_hard_concrete/reconstruction_" + str(epoch) + ".png",
+                    nrow=n,
+                )
 
     test_loss /= len(test_loader.dataset)
-    print('====> Test set loss: {:.4f}'.format(test_loss))
+    print("====> Test set loss: {:.4f}".format(test_loss))
+
 
 if __name__ == "__main__":
     for epoch in range(1, args.epochs + 1):
@@ -208,5 +254,7 @@ if __name__ == "__main__":
             sample = np.random.binomial(1, 0.5, size=(64, 20))
             sample = torch.from_numpy(np.float32(sample)).to(device)
             sample = model.decode(sample).cpu()
-            save_image(sample.view(64, 1, 28, 28),
-                       'results/vae_hard_concrete/sample_' + str(epoch) + '.png')
+            save_image(
+                sample.view(64, 1, 28, 28),
+                "results/vae_hard_concrete/sample_" + str(epoch) + ".png",
+            )

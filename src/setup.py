@@ -13,12 +13,13 @@ from setuptools import setup, find_packages
 
 from relaxit import __version__
 
+
 def read(file_path):
-    with io.open(file_path, 'r', encoding='utf-8') as f:
+    with io.open(file_path, "r", encoding="utf-8") as f:
         return f.read()
 
 
-readme = read('README.rst')
+readme = read("README.rst")
 # # вычищаем локальные версии из файла requirements (согласно PEP440)
 # requirements = '\n'.join(
 #     re.findall(r'^([^\s^+]+).*$',
@@ -28,15 +29,14 @@ readme = read('README.rst')
 
 setup(
     # metadata
-    name='relaxit',
+    name="relaxit",
     version=__version__,
-    license='MIT',
-    author='',
+    license="MIT",
+    author="",
     author_email="",
-    description='relaxit, python package',
+    description="relaxit, python package",
     long_description=readme,
-    url='https://github.com/intsystems/discrete-variables-relaxation',
-
+    url="https://github.com/intsystems/discrete-variables-relaxation",
     # options
     packages=find_packages(),
     # install_requires=requirements,

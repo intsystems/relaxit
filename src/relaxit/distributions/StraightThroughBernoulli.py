@@ -2,6 +2,7 @@ import torch
 from pyro.distributions.torch_distribution import TorchDistribution
 from torch.distributions import constraints
 
+
 class StraightThroughBernoulli(TorchDistribution):
     """
 
@@ -9,7 +10,7 @@ class StraightThroughBernoulli(TorchDistribution):
     - a (Tensor): logits
     """
 
-    arg_constraints = {'a': constraints.real}
+    arg_constraints = {"a": constraints.real}
     support = constraints.real
     has_rsample = True
 
@@ -17,12 +18,15 @@ class StraightThroughBernoulli(TorchDistribution):
         """
 
         Args:
-        - a (Tensor): logits 
+        - a (Tensor): logits
         - validate_args (bool): Whether to validate arguments.
         """
 
         self.a = a.float()  # Ensure a is a float tensor
-        self.uniform = torch.distributions.Uniform(torch.tensor([0.0], device=self.a.device), torch.tensor([1.0], device=self.a.device))
+        self.uniform = torch.distributions.Uniform(
+            torch.tensor([0.0], device=self.a.device),
+            torch.tensor([1.0], device=self.a.device),
+        )
         super().__init__(validate_args=validate_args)
 
     @property
@@ -56,7 +60,9 @@ class StraightThroughBernoulli(TorchDistribution):
         - torch.Tensor: A sample from the distribution.
         """
         p = torch.nn.functional.sigmoid(self.a)
-        b = torch.distributions.Bernoulli(torch.sqrt(p)).sample(sample_shape=sample_shape)
+        b = torch.distributions.Bernoulli(torch.sqrt(p)).sample(
+            sample_shape=sample_shape
+        )
         z = torch.sqrt(p) * b
         return z
 
@@ -72,7 +78,7 @@ class StraightThroughBernoulli(TorchDistribution):
         """
         with torch.no_grad():
             return self.rsample(sample_shape)
-        
+
     def log_prob(self, value: torch.Tensor) -> torch.Tensor:
         """
         Computes the log probability of the given value.
@@ -86,8 +92,8 @@ class StraightThroughBernoulli(TorchDistribution):
         if self._validate_args:
             self._validate_sample(value)
         p = torch.nn.functional.sigmoid(self.a)
-        
-        log_prob = torch.where(value == 0, torch.log( 1 - p), torch.log(p))
+
+        log_prob = torch.where(value == 0, torch.log(1 - p), torch.log(p))
         return log_prob
 
     def _validate_sample(self, value: torch.Tensor):
@@ -98,5 +104,5 @@ class StraightThroughBernoulli(TorchDistribution):
         - value (Tensor): The sample value to validate.
         """
         if self._validate_args:
-            if (value < 0 ).any() :
+            if (value < 0).any():
                 raise ValueError("Sample value must be non negative")

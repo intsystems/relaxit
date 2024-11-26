@@ -1,12 +1,17 @@
 import torch
 import sys
-sys.path.append('../../src')
+
+sys.path.append("../../src")
 from relaxit.distributions.LogisticNormalSoftmax import LogisticNormalSoftmax
-from relaxit.distributions.approx import lognorm_approximation_fn, dirichlet_approximation_fn
+from relaxit.distributions.approx import (
+    lognorm_approximation_fn,
+    dirichlet_approximation_fn,
+)
 from pyro.distributions import Dirichlet
 
 # Testing two-side closed-form Laplace bridge approximation between
 # LogisticNormal and Dirichlet distributions
+
 
 def test_approx():
     # Generate a random concentration parameter

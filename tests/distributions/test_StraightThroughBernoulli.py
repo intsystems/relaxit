@@ -1,15 +1,20 @@
 import torch
 import sys, os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..', 'src')))
+
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../..", "src"))
+)
 from relaxit.distributions.StraightThroughBernoulli import StraightThroughBernoulli
 
 # Testing reparameterized sampling from the GaussianRelaxedBernoulli distribution
 
+
 def test_sample_shape():
     a = torch.tensor([1, 2, 3])
-    distr = StraightThroughBernoulli(a = a)
+    distr = StraightThroughBernoulli(a=a)
     samples = distr.rsample()
     assert samples.shape == torch.Size([3])
+
 
 # def test_sample_grad():
 #     a = torch.tensor([1., 2., 3.], requires_grad=True)

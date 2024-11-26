@@ -9,10 +9,10 @@ from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 
-sys.path.append(os.path.abspath(os.path.join(
-    os.path.dirname(__file__), '..', 'src')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 from relaxit.distributions import InvertibleGaussian
 from relaxit.distributions.kl import kl_divergence
+
 
 def parse_arguments() -> argparse.Namespace:
     """
@@ -21,18 +21,36 @@ def parse_arguments() -> argparse.Namespace:
     Returns:
         argparse.Namespace: Parsed command line arguments.
     """
-    parser = argparse.ArgumentParser(description='VAE MNIST Example')
-    parser.add_argument('--batch-size', type=int, default=128, metavar='N',
-                        help='input batch size for training (default: 128)')
-    parser.add_argument('--epochs', type=int, default=10, metavar='N',
-                        help='number of epochs to train (default: 10)')
-    parser.add_argument('--no-cuda', action='store_true', default=False,
-                        help='enables CUDA training')
-    parser.add_argument('--seed', type=int, default=1, metavar='S',
-                        help='random seed (default: 1)')
-    parser.add_argument('--log_interval', type=int, default=10, metavar='N',
-                        help='how many batches to wait before logging training status')
+    parser = argparse.ArgumentParser(description="VAE MNIST Example")
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=128,
+        metavar="N",
+        help="input batch size for training (default: 128)",
+    )
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=10,
+        metavar="N",
+        help="number of epochs to train (default: 10)",
+    )
+    parser.add_argument(
+        "--no-cuda", action="store_true", default=False, help="enables CUDA training"
+    )
+    parser.add_argument(
+        "--seed", type=int, default=1, metavar="S", help="random seed (default: 1)"
+    )
+    parser.add_argument(
+        "--log_interval",
+        type=int,
+        default=10,
+        metavar="N",
+        help="how many batches to wait before logging training status",
+    )
     return parser.parse_args()
+
 
 args = parse_arguments()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -41,16 +59,23 @@ torch.manual_seed(args.seed)
 
 device = torch.device("cuda" if args.cuda else "cpu")
 
-os.makedirs('./results/vae_invertible_gaussian', exist_ok=True)
+os.makedirs("./results/vae_invertible_gaussian", exist_ok=True)
 
-kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
+kwargs = {"num_workers": 1, "pin_memory": True} if args.cuda else {}
 train_loader = torch.utils.data.DataLoader(
-    datasets.MNIST('./data', train=True, download=True,
-                   transform=transforms.ToTensor()),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
+    datasets.MNIST(
+        "./data", train=True, download=True, transform=transforms.ToTensor()
+    ),
+    batch_size=args.batch_size,
+    shuffle=True,
+    **kwargs
+)
 test_loader = torch.utils.data.DataLoader(
-    datasets.MNIST('./data', train=False, transform=transforms.ToTensor()),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
+    datasets.MNIST("./data", train=False, transform=transforms.ToTensor()),
+    batch_size=args.batch_size,
+    shuffle=True,
+    **kwargs
+)
 
 INITIAL_TEMP = 1.0
 ANNEAL_RATE = 0.00003
@@ -65,10 +90,12 @@ scale_prior = torch.ones(N, K - 1, device=device)
 temp = INITIAL_TEMP
 steps = 0
 
+
 class VAE(nn.Module):
     """
     Variational Autoencoder (VAE) with Correlated Relaxed Bernoulli distribution.
     """
+
     def __init__(self) -> None:
         super(VAE, self).__init__()
 
@@ -108,7 +135,9 @@ class VAE(nn.Module):
         h3 = F.relu(self.fc3(z))
         return torch.sigmoid(self.fc4(h3))
 
-    def forward(self, x: torch.Tensor, temp: float = 1.0) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(
+        self, x: torch.Tensor, temp: float = 1.0
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Forward pass through the VAE.
 
@@ -125,14 +154,13 @@ class VAE(nn.Module):
 
         return self.decode(z), q_z
 
+
 model = VAE().to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
+
 def loss_function(
-    recon_x: torch.Tensor,
-    x: torch.Tensor,
-    q_z: InvertibleGaussian,
-    temp: float = 1.0
+    recon_x: torch.Tensor, x: torch.Tensor, q_z: InvertibleGaussian, temp: float = 1.0
 ) -> torch.Tensor:
     """
     Compute the loss function for the VAE.
@@ -147,15 +175,14 @@ def loss_function(
     Returns:
         torch.Tensor: Loss value.
     """
-    BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
+    BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction="sum")
     p_z = InvertibleGaussian(
-        loc_prior.repeat(x.shape[0], 1, 1),
-        scale_prior.repeat(x.shape[0], 1, 1),
-        temp
+        loc_prior.repeat(x.shape[0], 1, 1), scale_prior.repeat(x.shape[0], 1, 1), temp
     )
     KLD = kl_divergence(q_z, p_z).sum()
 
     return BCE + KLD
+
 
 def train(epoch: int) -> None:
     """
@@ -177,17 +204,26 @@ def train(epoch: int) -> None:
         optimizer.step()
 
         if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader),
-                loss.item() / len(data)))
+            print(
+                "Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}".format(
+                    epoch,
+                    batch_idx * len(data),
+                    len(train_loader.dataset),
+                    100.0 * batch_idx / len(train_loader),
+                    loss.item() / len(data),
+                )
+            )
 
         steps += 1
         if steps % 1000 == 0:
             temp = max(temp * np.exp(-ANNEAL_RATE * steps), MIN_TEMP)
 
-    print('====> Epoch: {} Average loss: {:.4f}'.format(
-          epoch, train_loss / len(train_loader.dataset)))
+    print(
+        "====> Epoch: {} Average loss: {:.4f}".format(
+            epoch, train_loss / len(train_loader.dataset)
+        )
+    )
+
 
 def test(epoch: int) -> None:
     """
@@ -206,13 +242,20 @@ def test(epoch: int) -> None:
             test_loss += loss_function(recon_batch, data, q_z, temp).item()
             if i == 0:
                 n = min(data.size(0), 8)
-                comparison = torch.cat([data[:n],
-                                       recon_batch.view(args.batch_size, 1, 28, 28)[:n]])
-                save_image(comparison.cpu(),
-                           'results/vae_invertible_gaussian/reconstruction_' + str(epoch) + '.png', nrow=n)
+                comparison = torch.cat(
+                    [data[:n], recon_batch.view(args.batch_size, 1, 28, 28)[:n]]
+                )
+                save_image(
+                    comparison.cpu(),
+                    "results/vae_invertible_gaussian/reconstruction_"
+                    + str(epoch)
+                    + ".png",
+                    nrow=n,
+                )
 
     test_loss /= len(test_loader.dataset)
-    print('====> Test set loss: {:.4f}'.format(test_loss))
+    print("====> Test set loss: {:.4f}".format(test_loss))
+
 
 if __name__ == "__main__":
     for epoch in range(1, args.epochs + 1):
@@ -221,8 +264,12 @@ if __name__ == "__main__":
         with torch.no_grad():
             cat_sample = np.random.randint(K, size=(64, N))
             onehot_sample = np.zeros((64, N, K))
-            onehot_sample[tuple(list(np.indices(onehot_sample.shape[:-1])) + [cat_sample])] = 1
+            onehot_sample[
+                tuple(list(np.indices(onehot_sample.shape[:-1])) + [cat_sample])
+            ] = 1
             sample = torch.from_numpy(np.float32(onehot_sample)).to(device)
             sample = model.decode(sample).cpu()
-            save_image(sample.view(64, 1, 28, 28),
-                       'results/vae_invertible_gaussian/sample_' + str(epoch) + '.png')
+            save_image(
+                sample.view(64, 1, 28, 28),
+                "results/vae_invertible_gaussian/sample_" + str(epoch) + ".png",
+            )

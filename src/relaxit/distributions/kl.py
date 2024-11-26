@@ -1,10 +1,7 @@
-from torch.distributions import (
-    kl_divergence,
-    register_kl,
-    Normal
-)
+from torch.distributions import kl_divergence, register_kl, Normal
 
 from .InvertibleGaussian import InvertibleGaussian
+
 
 @register_kl(InvertibleGaussian, InvertibleGaussian)
 def _kl_igr_igr(p, q):
