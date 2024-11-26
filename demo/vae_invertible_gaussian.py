@@ -61,6 +61,10 @@ N = 20  # Number of categorical distributions
 temp = INITIAL_TEMP
 steps = 0
 
+### CHANGE IT TO 1/K CATEGORICAL APPROXIMATION
+loc_prior = torch.zeros(N, K - 1, device=device)
+scale_prior = torch.ones(N, K - 1, device=device)
+
 class VAE(nn.Module):
     """
     Variational Autoencoder (VAE) with Correlated Relaxed Bernoulli distribution.
@@ -128,8 +132,6 @@ def loss_function(
     recon_x: torch.Tensor,
     x: torch.Tensor,
     q_z: InvertibleGaussian,
-    prior: float = 0.5,
-    eps: float = 1e-10,
     temp: float = 1.0
 ) -> torch.Tensor:
     """
@@ -139,7 +141,6 @@ def loss_function(
         recon_x (torch.Tensor): Reconstructed input.
         x (torch.Tensor): Original input.
         q_z (InvertibleGaussian): Posterior distribution.
-        prior (float): Prior probability.
         eps (float): Small value to avoid log(0).
         temp (float): Relaxation temperature.
 
@@ -147,10 +148,9 @@ def loss_function(
         torch.Tensor: Loss value.
     """
     BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
-    ### CHANGE IT TO 1/K CATEGORICAL APPROXIMATION
     p_z = InvertibleGaussian(
-        torch.zeros(q_z.batch_shape, device=x.device),
-        torch.ones(q_z.batch_shape, device=x.device),
+        loc_prior.repeat(x.shape[0], 1, 1),
+        scale_prior.repeat(x.shape[0], 1, 1),
         temp
     )
     KLD = kl_divergence(q_z, p_z).sum()
