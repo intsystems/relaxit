@@ -1,7 +1,7 @@
 # Demo experiments code
 
 In this repository, we introduce our demo code. The main demo code can be viewed in notebook `demo/demo.ipynb`. Open the notebook and run the cells.
-Below, in section [Additional experiments](#experiments) is an example of running.
+Below, in section [Additional experiments](#experiments) is an example of running additional experiments.
 To start any experiments, first go through all the installation steps from [Installation](#installation) section.
 
 ## Installation <a name="installation"></a>
