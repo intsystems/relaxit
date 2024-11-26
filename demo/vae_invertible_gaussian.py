@@ -58,12 +58,12 @@ MIN_TEMP = 0.1
 K = 10  # Number of classes
 N = 20  # Number of categorical distributions
 
-temp = INITIAL_TEMP
-steps = 0
-
 ### CHANGE IT TO 1/K CATEGORICAL APPROXIMATION
 loc_prior = torch.zeros(N, K - 1, device=device)
 scale_prior = torch.ones(N, K - 1, device=device)
+
+temp = INITIAL_TEMP
+steps = 0
 
 class VAE(nn.Module):
     """
