@@ -28,11 +28,13 @@ jobs:
         
       - name: Install Dependencies
         run: |
+          pip install mdToRst
           pip install -U sphinx
           pip install -U sphinx-rtd-theme
           pip install torch
           pip install pyro-ppl
           ls ./
+          mdToRst README.md | tee README.rst
           
       - name: Build Docs
         run: |

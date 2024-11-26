@@ -21,10 +21,10 @@ def read(file_path):
 
 readme = read("README.rst")
 # # вычищаем локальные версии из файла requirements (согласно PEP440)
-# requirements = '\n'.join(
-#     re.findall(r'^([^\s^+]+).*$',
-#                read('requirements.txt'),
-#                flags=re.MULTILINE))
+requirements = '\n'.join(
+    re.findall(r'^([^\s^+]+).*$',
+               read('requirements.txt'),
+               flags=re.MULTILINE))
 
 
 setup(
@@ -39,5 +39,5 @@ setup(
     url="https://github.com/intsystems/discrete-variables-relaxation",
     # options
     packages=find_packages(),
-    # install_requires=requirements,
+    install_requires=requirements,
 )
