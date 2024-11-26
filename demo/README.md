@@ -5,24 +5,21 @@ This repository contains our demo code for various experiments. The main demo co
 
 To use this demo code, you need to have Python and the required packages installed on your computer.
 
-Clone the repository:
 ```bash
+# Clone the repository:
 git clone https://github.com/intsystems/discrete-variables-relaxation.git
-```
 
-Navigate to the repository directory:
-```bash
+# Navigate to the repository directory:
 cd discrete-variables-relaxation/demo
-```
 
-Create a conda environment using the provided `environment.yml` file:
-```bash
-conda env create -f environment.yml
-```
+# Create Virtual Environment with Conda:
+conda create --name relaxit-demo python=3.10
 
-Activate the conda environment:
-```bash
+# Activate the conda environment:
 conda activate relaxit-demo
+
+Install Dependencies
+pip install -r requirements.txt
 ```
 ## Additional experiments<a name="experiments"></a>
 
