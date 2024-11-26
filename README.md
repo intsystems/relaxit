@@ -55,9 +55,8 @@ The problem is that due to continuos nature of deep learning optimization, the u
 Thus we use different relaxation method. 
 One of them, [Concrete distribution](https://arxiv.org/abs/1611.00712) or [Gumbel-Softmax](https://arxiv.org/abs/1611.01144) (this is one distribution proposed in parallel by two research groups) is implemented in different DL packages. 
 In this project we implement different alternatives to it. 
-
 <div align="center">  
-    <img src="assets/overview.png"/>
+    <img src="assets/overview.png" width="600"/>
 </div>
 
 ## 🗃 Algorithms
@@ -69,6 +68,10 @@ In this project we implement different alternatives to it.
 - [x] [Hard Concrete](https://arxiv.org/pdf/1712.01312) 
 - [x] [REINFORCE](http://www.cs.toronto.edu/~tingwuwang/REINFORCE.pdf)
 - [x] [Logit-Normal](https://en.wikipedia.org/wiki/Logit-normal_distribution) and [Laplace-form approximation of Dirichlet](https://stats.stackexchange.com/questions/535560/approximating-the-logit-normal-by-dirichlet) 
+
+## 🎮 Demo
+For demonstration purposes, we have implemented a simple VAE with discrete latents. Our code is available [here](https://github.com/intsystems/discrete-variables-relaxation/tree/main/demo). 
+Each of the discussed relaxation techniques allowed us to learn the latent space with the corresponding distribution. 
 
 ## 📚 Stack
 Some of the alternatives for GS were implemented in [pyro](https://docs.pyro.ai/en/dev/distributions.html), so we base our library on their codebase.
