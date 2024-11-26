@@ -15,6 +15,9 @@
 
 <p align="center">
     <a href="https://github.com/intsystems/discrete-variables-relaxation/tree/main/tests">
+        <img alt="Coverage_2" src="https://github.com/intsystems/discrete-variables-relaxation/actions/workflows/test.yml/badge.svg" />
+    </a>
+    <a href="https://github.com/intsystems/discrete-variables-relaxation/tree/main/tests">
         <img alt="Coverage" src="coverage-badge.svg" />
     </a>
     <a href="https://intsystems.github.io/discrete-variables-relaxation">
