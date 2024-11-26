@@ -6,8 +6,8 @@ from relaxit.distributions.GumbelSoftmaxTopK import GumbelSoftmaxTopK
 # Testing reparameterized sampling and log prob from the GumbelSoftmaxTopK distribution
 
 def test_sample_shape():
-    a = torch.tensor([1., 2., 3., 4., 5.])
-    K = torch.tensor(2)
+    a = torch.tensor([[1., 2., 3.], [6., 7., 8.], [9., 10., 11.]])
+    K = torch.tensor(1)
     tau = torch.tensor(0.1)
     distribution = GumbelSoftmaxTopK(a, K=K, tau=tau)
     sample = distribution.rsample()
