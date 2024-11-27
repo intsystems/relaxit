@@ -70,8 +70,16 @@ In this project we implement different alternatives to it.
 - [x] [Logit-Normal](https://github.com/intsystems/discrete-variables-relaxation/blob/main/src/relaxit/distributions/LogisticNormalSoftmax.py) and [Laplace-form approximation of Dirichlet](https://github.com/intsystems/discrete-variables-relaxation/blob/main/src/relaxit/distributions/approx.py), also see [ℹ️ wiki](https://en.wikipedia.org/wiki/Logit-normal_distribution) and [💻 stackexchange](https://stats.stackexchange.com/questions/535560/approximating-the-logit-normal-by-dirichlet) 
 
 ## 🎮 Demo
-For demonstration purposes, we have implemented a simple VAE with discrete latents. Our code is available [here](https://github.com/intsystems/discrete-variables-relaxation/tree/main/demo). 
-Each of the discussed relaxation techniques allowed us to learn the latent space with the corresponding distribution. 
+| Laplace Bridge | REINFORCE in Acrobot environment | VAE with discrete latents |
+| --- | --- | --- |
+| ![Laplace Bridge](https://github.com/user-attachments/assets/ac5d5a71-e7d7-4ec3-b9ca-9b72d958eb41) | ![REINFORCE](https://gymnasium.farama.org/_images/acrobot.gif) | ![VAE](https://github.com/user-attachments/assets/937585c4-df84-4ab0-a2b9-ea6a73997793) |
+
+For demonstration purposes, we divide our algorithms in three different groups. Each group relates to the particular demo code:
+- [Laplace bridge between Dirichlet and LogisticNormal distributions](https://github.com/intsystems/discrete-variables-relaxation/blob/main/demo/laplace-bridge.ipynb)
+- [REINFORCE](https://github.com/intsystems/discrete-variables-relaxation/blob/main/demo/reinforce.ipynb)
+- [Other relaxation methods](https://github.com/intsystems/discrete-variables-relaxation/blob/main/demo/demo.ipynb)
+
+We describe our demo experiments [here](https://github.com/intsystems/discrete-variables-relaxation/tree/main/demo).
 
 ## 📚 Stack
 Some of the alternatives for GS were implemented in [pyro](https://docs.pyro.ai/en/dev/distributions.html), so we base our library on their codebase.
