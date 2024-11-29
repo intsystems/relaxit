@@ -9,9 +9,12 @@
 
 import io
 import re
+import os
 from setuptools import setup, find_packages
 
-from src.relaxit import __version__
+version_info = {}
+with open(os.path.join("src", "relaxit", "_version.py")) as f:
+    exec(f.read(), version_info)
 
 
 def read(file_path):
@@ -30,7 +33,7 @@ requirements = '\n'.join(
 setup(
     # metadata
     name="relaxit",
-    version=__version__,
+    version=version_info['__version__'],
     license="MIT",
     author="",
     author_email="",
