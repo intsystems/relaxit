@@ -71,8 +71,9 @@ In this project we implement different alternatives to it.
 
 ## 🎮 Demo
 | Laplace Bridge | REINFORCE in Acrobot environment | VAE with discrete latents |
-| --- | --- | --- |
+| :---: | :---: | :---: |
 | ![Laplace Bridge](https://github.com/user-attachments/assets/ac5d5a71-e7d7-4ec3-b9ca-9b72d958eb41) | ![REINFORCE](https://gymnasium.farama.org/_images/acrobot.gif) | ![VAE](https://github.com/user-attachments/assets/937585c4-df84-4ab0-a2b9-ea6a73997793) |
+| [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/intsystems/discrete-variables-relaxation/blob/main/demo/laplace-bridge.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/intsystems/discrete-variables-relaxation/blob/main/demo/reinforce.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/intsystems/discrete-variables-relaxation/blob/main/demo/demo.ipynb) |
 
 For demonstration purposes, we divide our algorithms in three different groups. Each group relates to the particular demo code:
 - [Laplace bridge between Dirichlet and LogisticNormal distributions](https://github.com/intsystems/discrete-variables-relaxation/blob/main/demo/laplace-bridge.ipynb)
