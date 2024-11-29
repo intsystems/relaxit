@@ -42,6 +42,6 @@ setup(
     url="https://github.com/intsystems/discrete-variables-relaxation",
     # options
     package_dir= {'' : 'src'} , 
-    packages=find_packages(where= 'srd'),
+    packages=find_packages(where= 'src'),
     install_requires=requirements,
 )
