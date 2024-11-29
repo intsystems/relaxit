@@ -11,7 +11,7 @@ import io
 import re
 from setuptools import setup, find_packages
 
-from relaxit import __version__
+from src.relaxit import __version__
 
 
 def read(file_path):
@@ -38,6 +38,7 @@ setup(
     long_description=readme,
     url="https://github.com/intsystems/discrete-variables-relaxation",
     # options
-    packages=find_packages(),
+    package_dir= {'' : 'src'} , 
+    packages=find_packages(where= 'srd'),
     install_requires=requirements,
 )
