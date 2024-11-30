@@ -20,7 +20,7 @@ from relaxit import __version__
 
 # -- Project information -----------------------------------------------------
 
-project = "Relaxit"
+project = "Just Relax It"
 copyright = "2024, Daniil Dorin, Igor Ignashin, Nikita Kiselev, Andrey Veprikov"
 author = "Daniil Dorin, Igor Ignashin, Nikita Kiselev, Andrey Veprikov"
 
@@ -62,7 +62,7 @@ html_context = {
     "github_user": "Intelligent-Systems-Phystech",  # Username
     "github_repo": "discrete-variables-relaxation",  # Repo name
     "github_version": "main",  # Version
-    "conf_py_path": "./doc/source/",  # Path in the checkout to the docs root
+    "conf_py_path": "./doc/",  # Path in the checkout to the docs root
 }
 
 
