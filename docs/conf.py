@@ -33,18 +33,13 @@ master_doc = "index"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.doctest",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.todo",
-    "sphinx.ext.ifconfig",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.inheritance_diagram",
-    "sphinx.ext.autosummary",
-    "sphinx.ext.mathjax",
-    "sphinx_rtd_theme",
-    "myst_parser"
+    'sphinx.ext.napoleon',
+    'sphinx.ext.duration',
+    'sphinx.ext.doctest',
+    'sphinx.ext.autodoc',
+    'myst_parser'
 ]
+highlight_language = 'python'
 
 autodoc_mock_imports = ["numpy", "scipy", "sklearn"]
 
