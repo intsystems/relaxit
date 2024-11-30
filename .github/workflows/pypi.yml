@@ -2,10 +2,11 @@ name: Deploy to PyPI
 
 # Деплой будет выполняться только при пуше в ветку `main`
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
+  # push:
+  #   branches: [ "main" ]
+  # pull_request:
+  #   branches: [ "main" ]
 
 jobs:
   deploy:
