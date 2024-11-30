@@ -38,8 +38,10 @@ jobs:
         twine check dist/*
 
     - name: Deploy to PyPI
-      env:
-        TWINE_USERNAME: "__token__"
-        TWINE_PASSWORD: ${{ secrets.deploy_to_pypi }}
+      # env:
+      #   TWINE_USERNAME: "__token__"
+      #   TWINE_PASSWORD: ${{ secrets.deploy_to_pypi }}
+      # run: |
+      #   twine upload dist/*
       run: |
-        twine upload dist/*
+        twine upload dist/* -u __token__ -p ${{ secrets.deploy_to_pypi }}
