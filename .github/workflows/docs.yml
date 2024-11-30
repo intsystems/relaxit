@@ -15,13 +15,13 @@ jobs:
     
     strategy:
       matrix:
-        python-version: [3.7]
+        python-version: [3.11]
         
     steps:
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
-          python-version: 3.7
+          python-version: 3.11
 
       - name: Checkout 🛎️
         uses: actions/checkout@v2
@@ -39,7 +39,7 @@ jobs:
           
       - name: Build Docs
         run: |
-          sphinx-build -b html ./docs/source/ public
+          sphinx-build -b html ./docs/ public
           touch public/.nojekyll
           
       - name: Deploy 🚀
