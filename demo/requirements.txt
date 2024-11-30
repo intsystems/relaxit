@@ -8,3 +8,4 @@ matplotlib==3.9.2
 networkx==3.3
 tqdm==4.66.5
 pillow==10.4.0
+relaxit==0.1.2

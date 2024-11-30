@@ -11,7 +11,13 @@ def read(file_path):
     with io.open(file_path, "r", encoding="utf-8") as f:
         return f.read()
 
-readme = read("README.rst")
+try:
+    long_description = open("README.md", encoding="utf-8").read()
+except Exception as e:
+    sys.stderr.write("Failed to read README.md: {}\n".format(e))
+    sys.stderr.flush()
+    long_description = ""
+
 # # вычищаем локальные версии из файла requirements (согласно PEP440)
 requirements = '\n'.join(
     re.findall(r'^([^\s^+]+).*$',
@@ -26,8 +32,8 @@ setup(
     license="MIT",
     author="",
     author_email="",
-    description="relaxit, python package",
-    long_description=readme,
+    description="A Python library for discrete variables relaxation",
+    long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/intsystems/discrete-variables-relaxation",
     # options

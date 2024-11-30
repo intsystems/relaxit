@@ -28,7 +28,7 @@ jobs:
           
       - name: Generate coverage badge
         run: |
-          python src/badge_generator.py
+          python badge_generator.py
 
       # - name: Commit coverage badge
       #   run: |
