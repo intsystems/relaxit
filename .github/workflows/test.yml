@@ -4,20 +4,16 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        python-version: [3.7]
-        
+    runs-on: ubuntu-latest        
     steps:
-      - name: Set up Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.7
 
       - name: Checkout 🛎️
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
         
       - name: Install Dependencies
         run: |
@@ -29,6 +25,7 @@ jobs:
       - name: Testing
         run: |
           PYTHONPATH=src/ pytest tests/ --cov=relaxit --cov-report=xml
+          
       - name: Generate coverage badge
         run: |
           python src/badge_generator.py

@@ -43,6 +43,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.mathjax",
     "sphinx_rtd_theme",
+    "myst_parser"
 ]
 
 autodoc_mock_imports = ["numpy", "scipy", "sklearn"]
