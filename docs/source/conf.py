@@ -21,8 +21,8 @@ from relaxit import __version__
 # -- Project information -----------------------------------------------------
 
 project = "Relaxit"
-copyright = "2024, Dorin Daniil, Igor Ignashin, Nikita Kiselev, Andrey Veprikov"
-author = "Dorin Daniil, Igor Ignashin, Nikita Kiselev, Andrey Veprikov"
+copyright = "2024, Daniil Dorin, Igor Ignashin, Nikita Kiselev, Andrey Veprikov"
+author = "Daniil Dorin, Igor Ignashin, Nikita Kiselev, Andrey Veprikov"
 
 version = __version__
 master_doc = "index"

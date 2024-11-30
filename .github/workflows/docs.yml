@@ -38,7 +38,7 @@ jobs:
           
       - name: Build Docs
         run: |
-          sphinx-build -b html ./doc/source/ public
+          sphinx-build -b html ./docs/source/ public
           touch public/.nojekyll
           
       - name: Deploy 🚀
