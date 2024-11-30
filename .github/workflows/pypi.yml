@@ -1,8 +1,9 @@
 name: Deploy to PyPI
 
-# Деплой будет выполняться только при пуше в ветку `main`
 on:
   workflow_dispatch:
+
+  # if we want deploy after each push
   # push:
   #   branches: [ "main" ]
   # pull_request:
@@ -39,10 +40,9 @@ jobs:
         twine check dist/*
 
     - name: Deploy to PyPI
-      # env:
-      #   TWINE_USERNAME: "__token__"
-      #   TWINE_PASSWORD: ${{ secrets.deploy_to_pypi }}
-      # run: |
-      #   twine upload dist/*
+      env:
+        TWINE_USERNAME: "__token__"
+        TWINE_PASSWORD: ${{ secrets.deploy_to_pypi }}
       run: |
-        twine upload dist/* -u __token__ -p ${{ secrets.deploy_to_pypi }}
+        twine upload dist/*
+      
