@@ -71,6 +71,37 @@ In this project we implement different alternatives to it.
 - [x] [REINFORCE](https://github.com/intsystems/discrete-variables-relaxation/blob/main/src/relaxit/distributions/CorrelatedRelaxedBernoulli.py), also see [📺 slides](http://www.cs.toronto.edu/~tingwuwang/REINFORCE.pdf)
 - [x] [Logit-Normal](https://github.com/intsystems/discrete-variables-relaxation/blob/main/src/relaxit/distributions/LogisticNormalSoftmax.py) and [Laplace-form approximation of Dirichlet](https://github.com/intsystems/discrete-variables-relaxation/blob/main/src/relaxit/distributions/approx.py), also see [ℹ️ wiki](https://en.wikipedia.org/wiki/Logit-normal_distribution) and [💻 stackexchange](https://stats.stackexchange.com/questions/535560/approximating-the-logit-normal-by-dirichlet) 
 
+## 🛠️ Install
+
+### Install from source
+```bash
+pip install git+https://github.com/intsystems/discrete-variables-relaxation
+```
+
+### Install via Git clone
+```bash
+git clone https://github.com/intsystems/discrete-variables-relaxation
+cd discrete-variables-relaxation
+pip install -e .
+```
+
+## 🚀 Quickstart
+```python
+import torch
+from relaxit.distributions.InvertibleGaussian import InvertibleGaussian
+
+# initialize distribution parameters
+loc = torch.zeros(3, 4, 5, requires_grad=True)
+scale = torch.ones(3, 4, 5, requires_grad=True)
+temperature = torch.tensor([1e-0])
+
+# initialize distribution
+distribution = InvertibleGaussian(loc, scale, temperature)
+
+# sample with reparameterization
+sample = distribution.rsample()
+```
+
 ## 🎮 Demo
 | Laplace Bridge | REINFORCE in Acrobot environment | VAE with discrete latents |
 | :---: | :---: | :---: |
