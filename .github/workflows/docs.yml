@@ -31,6 +31,7 @@ jobs:
           pip install mdToRst
           pip install -U sphinx
           pip install -U sphinx-rtd-theme
+          pip install -U myst_parser
           pip install torch
           pip install pyro-ppl
           ls ./
