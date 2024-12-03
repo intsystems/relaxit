@@ -1,7 +1,7 @@
 import io
 import os
 import sys
-from setuptools import setup
+from setuptools import setup, find_packages
 
 version_info = {}
 with open(os.path.join("src", "relaxit", "_version.py")) as f:
@@ -24,13 +24,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/intsystems/discrete-variables-relaxation",
-    packages=[
-        "relaxit", 
-        "relaxit.distributions"
-    ],
-    package_dir={
-        "relaxit": "src/relaxit",
-        "relaxit.distributions": "src/relaxit/distributions"
-    }, 
+    package_dir= {"": "src"}, 
+    packages=find_packages(where="src"),
     install_requires=["pyro-ppl==1.9.1"],
 )
