@@ -3,50 +3,33 @@ import torch.nn.functional as F
 from torch.distributions import constraints
 from pyro.distributions.torch_distribution import TorchDistribution
 from torch.distributions import constraints
+from torch.distributions.utils import probs_to_logits
 
 
-class GumbelSoftmaxTopK(TorchDistribution):
+class StraightThroughEstimator(TorchDistribution):
     r"""
-    Implimentation of the Gaussian-soft max topK trick from https://arxiv.org/pdf/1903.06059
+    Implimentation of the Straight Through Estimator from https://arxiv.org/abs/1910.02176
 
     :param a: logits.
     :type a: torch.Tensor
-    :param K: how many samples without replacement to pick.
-    :type K: torch.Tensor
-    :param tau: Temperature hyper-parameter.
-    :type tau: torch.Tensor
-    :param hard: if `True`, the returned samples will be discretized as one-hot vectors, but will be differentiated as if it is the soft sample in autograd
-    :type hard: bool
     :param validate_args: Whether to validate arguments.
     :type validate_args: bool
     """
 
-    arg_constraints = {
-        "probs": constraints.unit_interval, 
-        "logits": constraints.real,
-        "K": constraints.positive_integer,
-        "tau": constraints.positive,
-    }
+    arg_constraints = {"probs": constraints.unit_interval, "logits": constraints.real}
     has_rsample = True
 
     def __init__(
         self,
         probs: torch.Tensor = None,
         logits: torch.Tensor = None,
-        K: torch.Tensor = torch.tensor(1),
-        tau: torch.Tensor = torch.tensor(0.1),
-        hard: bool = True,
         validate_args: bool = None,
     ):
-        r"""Initializes the GumbelSoftmaxTopK distribution.
-
-        TODO
-        :param K: how many samples without replacement to pick.
-        :type K: torch.Tensor
-        :param tau: Temperature hyper-parameter.
-        :type tau: torch.Tensor
-        :param hard: if `True`, the returned samples will be discretized as one-hot vectors, but will be differentiated as if it is the soft sample in autograd
-        :type hard: bool
+        r"""Initializes the ST Estimator.
+        
+        :param probs: TODO
+        :param logits: the log-odds of sampling `1`.
+        :type logits: torch.Tensor
         :param validate_args: Whether to validate arguments.
         :type validate_args: bool
         """
@@ -54,9 +37,7 @@ class GumbelSoftmaxTopK(TorchDistribution):
             raise ValueError("Pass `probs` or `logits`!")
         elif probs is None:
             self.probs = logits / logits.sum(dim=-1, keepdim=True)
-        self.K = K.int()  # Ensure K is a int tensor
-        self.tau = tau
-        self.hard = hard
+        self.logits=logits
         super().__init__(validate_args=validate_args)
 
     @property
@@ -87,14 +68,9 @@ class GumbelSoftmaxTopK(TorchDistribution):
         :rtype: torch.Tensor
         """
 
-        top_k_logits = torch.zeros_like(self.probs)
-        logits = torch.clone(self.probs)
-        for _ in range(self.K):
-            top1_gumbel = F.gumbel_softmax(logits, tau=self.tau, hard=self.hard)
-            top_k_logits += top1_gumbel
-            logits -= top1_gumbel * 1e10  # mask the selected entry
+        binary_sample = torch.bernoulli(self.probs).detach()    
 
-        return top_k_logits
+        return binary_sample + (self.probs - self.probs.detach())
 
     def sample(self) -> torch.Tensor:
         """
@@ -118,7 +94,7 @@ class GumbelSoftmaxTopK(TorchDistribution):
             self._validate_sample(value)
 
         return -F.binary_cross_entropy(self.probs, value, reduction="none")
-    
+
     def _validate_sample(self, value: torch.Tensor):
         """
         Validates the given sample value.
@@ -127,11 +103,7 @@ class GumbelSoftmaxTopK(TorchDistribution):
         - value (Tensor): The sample value to validate.
         """
         if self._validate_args:
-            if self.hard and ((value != 1.0) & (value != 0.0)).any():
+            if ((value != 1.0) & (value != 0.0)).any():
                 ValueError(
-                    f"If `self.hard` is `True`, then all coordinates in `value` must be 0 or 1 and you have {value}"
-                )
-            if not self.hard and (value < 0).any():
-                ValueError(
-                    f"If `self.hard` is `False`, then all coordinates in `value` must be >= 0 and you have {value}"
+                    f"All coordinates in `value` must be 0 or 1 and you have {value}"
                 )
