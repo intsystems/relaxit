@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>relaxit.distributions.StochasticTimesSmooth &mdash; Just Relax It  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/relaxit.css?v=834b9085" />
 
@@ -76,13 +76,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for relaxit.distributions.StochasticTimesSmooth</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">pyro.distributions</span> <span class="kn">import</span> <span class="n">Bernoulli</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyro.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bernoulli</span>
 
 
 <div class="viewcode-block" id="StochasticTimesSmooth">
 <a class="viewcode-back" href="../../../relaxit.distributions.html#relaxit.distributions.StochasticTimesSmooth.StochasticTimesSmooth">[docs]</a>
-<span class="k">class</span> <span class="nc">StochasticTimesSmooth</span><span class="p">(</span><span class="n">Bernoulli</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StochasticTimesSmooth</span><span class="p">(</span><span class="n">Bernoulli</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implementation of the Stochastic Times Smooth from https://citeseerx.ist.psu.edu/document?repid=rep1&amp;type=pdf&amp;doi=62c76ca0b2790c34e85ba1cce09d47be317c7235.</span>
 
@@ -103,7 +103,7 @@
 
     <span class="n">has_rsample</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the StochasticTimesSmooth distribution.</span>
 
@@ -115,7 +115,7 @@
 
 <div class="viewcode-block" id="StochasticTimesSmooth.rsample">
 <a class="viewcode-back" href="../../../relaxit.distributions.html#relaxit.distributions.StochasticTimesSmooth.StochasticTimesSmooth.rsample">[docs]</a>
-    <span class="k">def</span> <span class="nf">rsample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rsample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates a sample from the distribution using the reparameterization trick.</span>
 
