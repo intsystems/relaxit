@@ -140,6 +140,7 @@ To make to library consistent, we integrate imports of distributions from `pyro`
 - [Igor Ignashin](https://github.com/ThunderstormXX) (Project wrapping, Documentation writing, Algorithms)
 - [Nikita Kiselev](https://github.com/kisnikser) (Project planning, Blog post, Algorithms)
 - [Andrey Veprikov](https://github.com/Vepricov) (Tests writing, Documentation writing, Algorithms)
+- [Vladislav Minashkin](https://github.com/minashkinvladislav) (Project planning, Visualizations, Algorithms)
 - You are welcome to contribute to our project!
 
 ## 🔗 Useful links
