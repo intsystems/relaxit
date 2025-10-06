@@ -47,6 +47,9 @@ For additional demo experiments, we have implemented Variational Autoencoders (V
 
     # VAE with Straight Through Bernoullii latent space
     python vae_straight_through_bernoulli.py
+
+    # VAE with Rebar Relaxation Bernoullii latent space
+    python vae_rebar_relaxation.py
     ```
 2. **View the results:**
     After completing the training and testing of all the models, you can find the results of sampling and reconstruction methods in the directory `results`.
