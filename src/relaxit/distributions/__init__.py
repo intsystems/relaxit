@@ -6,6 +6,7 @@ from .InvertibleGaussian import InvertibleGaussian
 from .LogisticNormalSoftmax import LogisticNormalSoftmax
 from .StochasticTimesSmooth import StochasticTimesSmooth
 from .StraightThroughBernoulli import StraightThroughBernoulli
+from .RebarRelaxation import RebarRelaxation
 
 
 __all__ = [
@@ -16,5 +17,6 @@ __all__ = [
     "InvertibleGaussian",
     "LogisticNormalSoftmax",
     "StochasticTimesSmooth",
-    "StraightThroughBernoulli"
+    "StraightThroughBernoulli",
+    "RebarRelaxation"
 ]
