@@ -143,6 +143,7 @@ To make to library consistent, we integrate imports of distributions from `pyro`
 - [Vladislav Minashkin](https://github.com/minashkinvladislav) (Project planning, Visualizations, Algorithms)
 - [Papay Ivan](https://github.com/papayiv) (Documentation writing, Blog post, Algorithms)
 - [Meshkov Vlad](https://github.com/VseMeshkov) (Benchmarking, Demo, Algorithms)
+- [Stepanov Ilya](https://github.com/ILIAHHne63) (Tech. report, Code writing, Algorithms)
 - You are welcome to contribute to our project!
 
 ## 🔗 Useful links
