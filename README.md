@@ -54,7 +54,7 @@
 4. [Blog Post](https://kisnikser.github.io/projects/relaxit/)
 5. [Documentation](https://intsystems.github.io/relaxit/)
 6. [Tests](https://github.com/intsystems/relaxit/tree/main/tests)
-7. [Techтical Report (draft version)](https://github.com/intsystems/relaxit/tree/main/report)
+7. [Technical Report (draft version)](https://github.com/intsystems/relaxit/tree/main/report)
 
 ## 💡 Motivation
 For lots of mathematical problems we need an ability to sample discrete random variables.
