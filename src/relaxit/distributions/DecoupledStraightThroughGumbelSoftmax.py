@@ -115,11 +115,11 @@ class DecoupledStraightThroughGumbelSoftmax(TorchDistribution):
         gumbels = -torch.log(-torch.log(torch.rand_like(logits)))
 
         # Soft sample (for gradients) — higher temperature
-        z_backward = logits / self.temperature_backward + gumbels
+        z_backward = (logits + gumbels) / self.temperature_backward
         z_backward = z_backward.softmax(dim=-1)
 
         # Hard sample (for forward) — lower temperature
-        z_forward_logits = logits / self.temperature_forward + gumbels
+        z_forward_logits = (logits + gumbels) / self.temperature_forward
         index = z_forward_logits.max(-1, keepdim=True)[1]
         z_forward = torch.zeros_like(z_backward).scatter_(-1, index, 1.0)
 
