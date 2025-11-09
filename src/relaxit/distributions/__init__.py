@@ -9,6 +9,7 @@ from .StraightThroughBernoulli import StraightThroughBernoulli
 from .RebarRelaxation import RebarRelaxation
 from .DecoupledStraightThroughGumbelSoftmax import DecoupledStraightThroughGumbelSoftmax
 from .GeneralizedGumbelSoftmax import GeneralizedGumbelSoftmax, GeneralizedGumbelSoftmaxNP
+from .RebarRelaxation import RebarRelaxation
 
 
 __all__ = [
@@ -23,5 +24,6 @@ __all__ = [
     "RebarRelaxation"
     "DecoupledStraightThroughGumbelSoftmax",
     "GeneralizedGumbelSoftmax",
-    "GeneralizedGumbelSoftmaxNP"
+    "GeneralizedGumbelSoftmaxNP",
+    "RebarRelaxation"
 ]
