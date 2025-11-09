@@ -7,7 +7,7 @@ from .LogisticNormalSoftmax import LogisticNormalSoftmax
 from .StochasticTimesSmooth import StochasticTimesSmooth
 from .StraightThroughBernoulli import StraightThroughBernoulli
 from .DecoupledStraightThroughGumbelSoftmax import DecoupledStraightThroughGumbelSoftmax
-from .GeneralizedGumbelSoftmax import GeneralizedGumbelSoftmax, GeneralizedGumbelSoftmaxImplicit, GeneralizedGumbelSoftmaxNP
+from .GeneralizedGumbelSoftmax import GeneralizedGumbelSoftmax, GeneralizedGumbelSoftmaxNP
 
 
 __all__ = [
@@ -21,6 +21,5 @@ __all__ = [
     "StraightThroughBernoulli",
     "DecoupledStraightThroughGumbelSoftmax",
     "GeneralizedGumbelSoftmax",
-    "GeneralizedGumbelSoftmaxNP",
-    "GeneralizedGumbelSoftmaxImplicit"
+    "GeneralizedGumbelSoftmaxNP"
 ]
