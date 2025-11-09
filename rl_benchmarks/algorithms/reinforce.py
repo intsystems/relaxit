@@ -51,7 +51,8 @@ class REINFORCE:
         self.max_steps = max_steps
 
         # Extract dimensions from environment
-        self.observation_dim = len(env.observation_space.sample().flatten())
+        self.observation_dim = len(env.observation_space.sample().flatten()) if not isinstance(
+            env.observation_space, gym.spaces.discrete.Discrete) else env.observation_space.n
         self.observation_dim = env.observation_space.n if isinstance(
             env.observation_space, gym.spaces.discrete.Discrete) else len(env.observation_space.sample().flatten())
 
