@@ -117,6 +117,7 @@ class RELAX(nn.Module):
         self.hidden_size = hidden_size
         self.observation_dim = env.observation_space.n if isinstance(
             env.observation_space, gym.spaces.discrete.Discrete) else len(env.observation_space.sample().flatten())
+
         self.action_dim = env.action_space.n
         self.max_steps = max_steps
 
