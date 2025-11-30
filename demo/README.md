@@ -50,6 +50,14 @@ For additional demo experiments, we have implemented Variational Autoencoders (V
 
     # VAE with Rebar Relaxation Bernoullii latent space
     python vae_rebar_relaxation.py
+
+    # VAE with Poisson latent 
+    space
+    python vae_generalized_gumbel_poisson.py
+
+    # VAE with Geometric latent 
+    space
+    python vae_generalized_gumbel_geometric.py
     ```
 2. **View the results:**
     After completing the training and testing of all the models, you can find the results of sampling and reconstruction methods in the directory `results`.
