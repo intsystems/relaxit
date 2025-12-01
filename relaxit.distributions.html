@@ -937,7 +937,262 @@ trick by allowing arbitrary categorical supports (<code class="xref py py-attr d
 <dd class="field-odd"><p>The event shape (empty).</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<<｜fim▁end｜>dd class="field-even"><p>torch.Size</p>
+<dd class="field-even"><p>torch.Size</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmaxNP">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">relaxit.distributions.GeneralizedGumbelSoftmax.</span></span><span class="sig-name descname"><span class="pre">GeneralizedGumbelSoftmaxNP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">tensor(0.5000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hard</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/relaxit/distributions/GeneralizedGumbelSoftmax.html#GeneralizedGumbelSoftmaxNP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmaxNP" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GeneralizedGumbelSoftmax</span></code></p>
+<p>Generalized Gumbel-Softmax distribution for arbitrary discrete distributions.</p>
+<p>This version expects <code class="xref py py-attr docutils literal notranslate"><span class="pre">dist</span></code> to be a custom object with either
+a <code class="xref py py-meth docutils literal notranslate"><span class="pre">prob(values)</span></code> or <code class="xref py py-meth docutils literal notranslate"><span class="pre">log_prob(values)</span></code> method that returns
+probabilities (or log-probabilities) for the given discrete <code class="xref py py-attr docutils literal notranslate"><span class="pre">values</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dist</strong> – Custom distribution object implementing either <code class="docutils literal notranslate"><span class="pre">.prob(values)</span></code> or <code class="docutils literal notranslate"><span class="pre">.log_prob(values)</span></code>.</p></li>
+<li><p><strong>values</strong> (<em>torch.Tensor</em>) – Support values of shape <code class="docutils literal notranslate"><span class="pre">[K]</span></code> or <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">K]</span></code>.</p></li>
+<li><p><strong>tau</strong> (<em>torch.Tensor</em>) – Gumbel-softmax temperature parameter.</p></li>
+<li><p><strong>eta</strong> (<em>float</em><em>, </em><em>optional</em>) – Optional cutoff on cumulative probability.</p></li>
+<li><p><strong>hard</strong> (<em>bool</em>) – Whether to sample hard or soft. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.</span></span><span class="sig-name descname"><span class="pre">DecoupledStraightThroughGumbelSoftmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature_forward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature_backward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/relaxit/distributions/DecoupledStraightThroughGumbelSoftmax.html#DecoupledStraightThroughGumbelSoftmax"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TorchDistribution</span></code></p>
+<p>Decoupled Straight-Through Gumbel-Softmax distribution.</p>
+<p>This distribution uses two temperatures:
+    - <code class="xref py py-attr docutils literal notranslate"><span class="pre">temperature_forward</span></code>: for generating the hard (discrete) sample (forward pass).
+    - <code class="xref py py-attr docutils literal notranslate"><span class="pre">temperature_backward</span></code>: for computing smooth gradients (backward pass).</p>
+<p>The output is a one-hot vector (hard sample), but gradients flow through
+a soft Gumbel-Softmax sample computed with a different (typically higher) temperature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature_forward</strong> (<em>torch.Tensor</em>) – Temperature for hard sampling (low, e.g., 0.1).</p></li>
+<li><p><strong>temperature_backward</strong> (<em>torch.Tensor</em>) – Temperature for gradient estimation (higher, e.g., 1.0).</p></li>
+<li><p><strong>logits</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – Event logits.</p></li>
+<li><p><strong>probs</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – Event probabilities.</p></li>
+<li><p><strong>validate_args</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to validate distribution arguments. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.has_rsample">
+<span class="sig-name descname"><span class="pre">has_rsample</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.has_rsample" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.has_enumerate_support">
+<span class="sig-name descname"><span class="pre">has_enumerate_support</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.has_enumerate_support" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.rsample">
+<em class="property"><span class="pre">rsample</span></em><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Size()</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="_modules/relaxit/distributions/DecoupledStraightThroughGumbelSoftmax.html#DecoupledStraightThroughGumbelSoftmax.rsample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.rsample" title="Link to this definition"></a></dt>
+<dd><p>Generates a decoupled straight-through sample:
+    - Hard sample from Gumbel-Softmax with <code class="xref py py-attr docutils literal notranslate"><span class="pre">temperature_forward</span></code>.
+    - Gradient flows through soft sample from <code class="xref py py-attr docutils literal notranslate"><span class="pre">temperature_backward</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sample_shape</strong> (<em>torch.Size</em><em>, </em><em>optional</em>) – The shape of the sample. Defaults to torch.Size().</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>One-hot sample with straight-through gradients.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.log_prob">
+<em class="property"><span class="pre">log_prob</span></em><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="_modules/relaxit/distributions/DecoupledStraightThroughGumbelSoftmax.html#DecoupledStraightThroughGumbelSoftmax.log_prob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.log_prob" title="Link to this definition"></a></dt>
+<dd><p>Computes the log probability of the given value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>torch.Tensor</em>) – The value for which to compute the log probability.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The log probability of the given value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.enumerate_support">
+<em class="property"><span class="pre">enumerate_support</span></em><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expand</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="_modules/relaxit/distributions/DecoupledStraightThroughGumbelSoftmax.html#DecoupledStraightThroughGumbelSoftmax.enumerate_support"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.enumerate_support" title="Link to this definition"></a></dt>
+<dd><p>Enumerate all one-hot vectors in the support.
+Same as original Categorical support.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>expand</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to expand the support. Defaults to True.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The enumerated support.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.batch_shape">
+<em class="property"><span class="pre">batch_shape</span></em><a class="headerlink" href="#relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.batch_shape" title="Link to this definition"></a></dt>
+<dd><p>Returns the batch shape of the distribution.</p>
+<p>The batch shape represents the shape of independent distributions.
+For example, if <code class="xref py py-attr docutils literal notranslate"><span class="pre">probs</span></code> is a vector of length 3,
+the batch shape will be <code class="docutils literal notranslate"><span class="pre">[3]</span></code>, indicating 3 independent distributions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The batch shape of the distribution.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.Size</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.event_shape">
+<em class="property"><span class="pre">event_shape</span></em><a class="headerlink" href="#relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.event_shape" title="Link to this definition"></a></dt>
+<dd><p>Returns the event shape of the distribution.</p>
+<p>The event shape represents the shape of each individual event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The event shape of the distribution.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.Size</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.mean">
+<em class="property"><span class="pre">mean</span></em><a class="headerlink" href="#relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.mean" title="Link to this definition"></a></dt>
+<dd><p>Returns the mean of the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The mean of the distribution.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.variance">
+<em class="property"><span class="pre">variance</span></em><a class="headerlink" href="#relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax.variance" title="Link to this definition"></a></dt>
+<dd><p>Returns the variance of the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The variance of the distribution.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="relaxit.distributions.RebarRelaxation.RebarRelaxation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">relaxit.distributions.RebarRelaxation.</span></span><span class="sig-name descname"><span class="pre">RebarRelaxation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/relaxit/distributions/RebarRelaxation.html#RebarRelaxation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#relaxit.distributions.RebarRelaxation.RebarRelaxation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TorchDistribution</span></code></p>
+<p>Rebar continuous Relaxed Bernoulli distribution class from <a class="reference external" href="https://arxiv.org/pdf/1703.07370">https://arxiv.org/pdf/1703.07370</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>torch.Tensor</em>) – Mean of the Bernoulli distribution.</p></li>
+<li><p><strong>lambd</strong> (<em>torch.Tensor</em>) – Gumbel-Softmax constant (temperature).</p></li>
+<li><p><strong>validate_args</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to validate arguments. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="relaxit.distributions.RebarRelaxation.RebarRelaxation.has_rsample">
+<span class="sig-name descname"><span class="pre">has_rsample</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#relaxit.distributions.RebarRelaxation.RebarRelaxation.has_rsample" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relaxit.distributions.RebarRelaxation.RebarRelaxation.rsample">
+<em class="property"><span class="pre">rsample</span></em><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Size()</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="_modules/relaxit/distributions/RebarRelaxation.html#RebarRelaxation.rsample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#relaxit.distributions.RebarRelaxation.RebarRelaxation.rsample" title="Link to this definition"></a></dt>
+<dd><p>Generates a sample from the distribution using the reparameterization trick.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sample_shape</strong> (<em>torch.Size</em><em>, </em><em>optional</em>) – The shape of the sample. Defaults to torch.Size().</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A sample from the distribution.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relaxit.distributions.RebarRelaxation.RebarRelaxation.log_prob">
+<em class="property"><span class="pre">log_prob</span></em><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="_modules/relaxit/distributions/RebarRelaxation.html#RebarRelaxation.log_prob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#relaxit.distributions.RebarRelaxation.RebarRelaxation.log_prob" title="Link to this definition"></a></dt>
+<dd><p>Computes the log probability density of the Relaxed Bernoulli (Concrete) distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>torch.Tensor</em>) – Values in (0, 1) for which to compute log probability.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Log probability density.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="relaxit.distributions.RebarRelaxation.RebarRelaxation.batch_shape">
+<em class="property"><span class="pre">batch_shape</span></em><a class="headerlink" href="#relaxit.distributions.RebarRelaxation.RebarRelaxation.batch_shape" title="Link to this definition"></a></dt>
+<dd><p>Returns the batch shape of the distribution.</p>
+<p>The batch shape represents the shape of independent distributions.
+For example, if <code class="xref py py-attr docutils literal notranslate"><span class="pre">theta</span></code> is a vector of length 3,
+the batch shape will be <code class="docutils literal notranslate"><span class="pre">[3]</span></code>, indicating 3 independent Bernoulli distributions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The batch shape of the distribution.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.Size</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="relaxit.distributions.RebarRelaxation.RebarRelaxation.event_shape">
+<em class="property"><span class="pre">event_shape</span></em><a class="headerlink" href="#relaxit.distributions.RebarRelaxation.RebarRelaxation.event_shape" title="Link to this definition"></a></dt>
+<dd><p>Returns the event shape of the distribution.</p>
+<p>The event shape represents the shape of each individual event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The event shape of the distribution.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.Size</p>
 </dd>
 </dl>
 </dd></dl>
