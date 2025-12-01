@@ -841,6 +841,109 @@ straight through gradient estimator.</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">relaxit.distributions.GeneralizedGumbelSoftmax.</span></span><span class="sig-name descname"><span class="pre">GeneralizedGumbelSoftmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">tensor(0.5000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hard</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/relaxit/distributions/GeneralizedGumbelSoftmax.html#GeneralizedGumbelSoftmax"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TorchDistribution</span></code></p>
+<p>Generalized Gumbel-Softmax distribution.</p>
+<p>This distribution implements a differentiable relaxation of categorical sampling 
+over arbitrary discrete support values. It generalizes the standard Gumbel-Softmax
+trick by allowing arbitrary categorical supports (<code class="xref py py-attr docutils literal notranslate"><span class="pre">values</span></code>) instead of one-hot encodings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>values</strong> (<em>torch.Tensor</em>) – Discrete support values of shape <code class="docutils literal notranslate"><span class="pre">[K]</span></code> or <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">K]</span></code>, representing possible outcomes.</p></li>
+<li><p><strong>probs</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – Category probabilities of shape <code class="docutils literal notranslate"><span class="pre">[K]</span></code> or <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">K]</span></code>. Defaults to None.</p></li>
+<li><p><strong>logits</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – Category logits of shape <code class="docutils literal notranslate"><span class="pre">[K]</span></code> or <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">K]</span></code>. Defaults to None.</p></li>
+<li><p><strong>tau</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – Temperature parameter controlling the degree of relaxation. Defaults to <code class="docutils literal notranslate"><span class="pre">torch.tensor(0.5)</span></code>.</p></li>
+<li><p><strong>hard</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, returns hard samples (one-hot) but allows gradients through the soft relaxation. Defaults to False.</p></li>
+<li><p><strong>validate_args</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to validate input arguments. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax.has_rsample">
+<span class="sig-name descname"><span class="pre">has_rsample</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax.has_rsample" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax.rsample">
+<span class="sig-name descname"><span class="pre">rsample</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="_modules/relaxit/distributions/GeneralizedGumbelSoftmax.html#GeneralizedGumbelSoftmax.rsample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax.rsample" title="Link to this definition"></a></dt>
+<dd><p>Reparameterized sample: returns soft-one-hot weights of shape <code class="docutils literal notranslate"><span class="pre">[...,</span> <span class="pre">K]</span></code>.</p>
+<p>If <code class="xref py py-attr docutils literal notranslate"><span class="pre">hard</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, returns straight-through hard one-hot (but gradients flow through soft).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Sample weights from the distribution.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax.rsample_value">
+<span class="sig-name descname"><span class="pre">rsample_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="_modules/relaxit/distributions/GeneralizedGumbelSoftmax.html#GeneralizedGumbelSoftmax.rsample_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax.rsample_value" title="Link to this definition"></a></dt>
+<dd><p>Convenience method: <code class="xref py py-meth docutils literal notranslate"><span class="pre">rsample()</span></code> then project to scalar values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Sample values from the distribution projected to the support.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax.log_prob">
+<em class="property"><span class="pre">log_prob</span></em><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="_modules/relaxit/distributions/GeneralizedGumbelSoftmax.html#GeneralizedGumbelSoftmax.log_prob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax.log_prob" title="Link to this definition"></a></dt>
+<dd><p>Log-probability of a soft or hard one-hot vector under the categorical distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>torch.Tensor</em>) – One-hot or soft one-hot vector of shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">K]</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Log-probabilities of shape <code class="docutils literal notranslate"><span class="pre">[B]</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax.batch_shape">
+<em class="property"><span class="pre">batch_shape</span></em><a class="headerlink" href="#relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax.batch_shape" title="Link to this definition"></a></dt>
+<dd><p>Returns the batch shape of the distribution.</p>
+<p>Represents the shape of independent categorical distributions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The batch shape <code class="docutils literal notranslate"><span class="pre">[B]</span></code> or empty if unbatched.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.Size</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax.event_shape">
+<em class="property"><span class="pre">event_shape</span></em><a class="headerlink" href="#relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax.event_shape" title="Link to this definition"></a></dt>
+<dd><p>Returns the event shape of the distribution.</p>
+<p>Each event corresponds to one scalar value drawn from the discrete support.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The event shape (empty).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<<｜fim▁end｜>dd class="field-even"><p>torch.Size</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-relaxit.distributions.approx">
 <span id="utility-modules"></span><h2>Utility Modules<a class="headerlink" href="#module-relaxit.distributions.approx" title="Link to this heading"></a></h2>
