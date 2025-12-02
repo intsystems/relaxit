@@ -51,10 +51,11 @@
 1. [Technical Meeting 1 - Presentation](https://github.com/intsystems/relaxit/blob/main/assets/presentation_tm1.pdf)
 2. [Technical Meeting 2 - Jupyter Notebook](https://github.com/intsystems/relaxit/blob/main/basic/basic_code.ipynb)
 3. [Technical Meeting 3 - Jupyter Notebook](https://github.com/intsystems/relaxit/blob/main/demo/vizualization.ipynb)
-4. [Blog Post](https://kisnikser.github.io/projects/relaxit/)
-5. [Documentation](https://intsystems.github.io/relaxit/)
-6. [Tests](https://github.com/intsystems/relaxit/tree/main/tests)
-7. [Technical Report (draft version)](https://github.com/intsystems/relaxit/tree/main/report)
+4. [Blog Post 1](https://kisnikser.github.io/projects/relaxit/)
+5. [Blog Post 2](https://papayiv.github.io/2025/12/02/relax-it.html)
+6. [Documentation](https://intsystems.github.io/relaxit/)
+7. [Tests](https://github.com/intsystems/relaxit/tree/main/tests)
+8. [Technical Report (draft version)](https://github.com/intsystems/relaxit/tree/main/report)
 
 ## 💡 Motivation
 For lots of mathematical problems we need an ability to sample discrete random variables.
