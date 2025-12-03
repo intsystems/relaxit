@@ -7,26 +7,15 @@ from torch.distributions.utils import probs_to_logits, logits_to_probs
 
 class GeneralizedGumbelSoftmax(TorchDistribution):
     r"""
-    Generalized Gumbel-Softmax distribution.
-
-    This distribution implements a differentiable relaxation of categorical sampling 
-    over arbitrary discrete support values. It generalizes the standard Gumbel-Softmax
-    trick by allowing arbitrary categorical supports (`values`) instead of one-hot encodings.
+    Generalized Gumbel-Softmax from https://arxiv.org/abs/2003.01847.
 
     Args:
-        values (torch.Tensor): 
-            Discrete support values of shape `[K]` or `[B, K]`, representing possible outcomes.
-        probs (torch.Tensor, optional): 
-            Category probabilities of shape `[K]` or `[B, K]`. Defaults to None.
-        logits (torch.Tensor, optional): 
-            Category logits of shape `[K]` or `[B, K]`. Defaults to None.
-        tau (torch.Tensor, optional): 
-            Temperature parameter controlling the degree of relaxation. Defaults to `torch.tensor(0.5)`.
-        hard (bool, optional): 
-            If `True`, returns hard samples (one-hot) but allows gradients through the soft relaxation.
-            Defaults to False.
-        validate_args (bool, optional): 
-            Whether to validate input arguments. Defaults to None.
+        values (torch.Tensor): Discrete support values.
+        probs (torch.Tensor, optional): Category probabilities. Provide either `probs` or `logits`.
+        logits (torch.Tensor, optional): Category logits. Provide either `probs` or `logits`.
+        tau (torch.Tensor, optional): Temperature hyper-parameter. Defaults to 0.5.
+        hard (bool, optional): If `True`, returned samples are discretized but differentiated as soft.
+        validate_args (bool, optional): Whether to validate arguments. Defaults to None.
     """
 
     arg_constraints = {
@@ -45,10 +34,20 @@ class GeneralizedGumbelSoftmax(TorchDistribution):
         hard: bool = False,
         validate_args: bool = None,
     ):
+        r"""
+        Initializes the GeneralizedGumbelSoftmax distribution.
+
+        Args:
+            values (torch.Tensor): Discrete support values.
+            probs (torch.Tensor, optional): Category probabilities. Defaults to None.
+            logits (torch.Tensor, optional): Category logits. Defaults to None.
+            tau (torch.Tensor, optional): Temperature hyper-parameter. Defaults to 0.5.
+            hard (bool, optional): Whether to return hard samples. Defaults to False.
+            validate_args (bool, optional): Whether to validate arguments. Defaults to None.
+        """
         if (probs is None) == (logits is None):
             raise ValueError("Pass either `probs` or `logits`, but not both!")
 
-        # normalize and derive logits
         if probs is not None:
             self.probs = probs / probs.sum(dim=-1, keepdim=True)
             self.logits = probs_to_logits(self.probs)
@@ -56,7 +55,6 @@ class GeneralizedGumbelSoftmax(TorchDistribution):
             self.logits = logits
             self.probs = logits_to_probs(logits)
 
-        # align batch dimensions
         if values.dim() == 1:
             values = values.expand_as(self.probs)
 
@@ -68,78 +66,78 @@ class GeneralizedGumbelSoftmax(TorchDistribution):
     @property
     def batch_shape(self) -> torch.Size:
         r"""
-        Returns the batch shape of the distribution.
-        
-        Represents the shape of independent categorical distributions.
-
         Returns:
-            torch.Size: The batch shape `[B]` or empty if unbatched.
+            torch.Size: Batch shape.
         """
         return self.probs.shape[:-1]
 
     @property
     def event_shape(self) -> torch.Size:
         r"""
-        Returns the event shape of the distribution.
-
-        Each event corresponds to one scalar value drawn from the discrete support.
-
         Returns:
-            torch.Size: The event shape (empty).
+            torch.Size: Event shape.
         """
         return torch.Size()
 
     def weights_to_values(self, gumbel_weights: torch.Tensor) -> torch.Tensor:
         r"""
-        Project weights (soft/hard) to scalar values on support.
+        Projects soft or hard weights to the corresponding scalar values.
 
         Args:
-            gumbel_weights: tensor shape [..., K]
+            gumbel_weights (torch.Tensor): Soft or hard one-hot weights.
 
         Returns:
-            Tensor shape [...] — projected scalar(s).
+            torch.Tensor: Projected scalar values.
         """
         return torch.sum(gumbel_weights * self.values, dim=-1)
 
     def rsample(self) -> torch.Tensor:
         r"""
-        Reparameterized sample: returns soft-one-hot weights of shape [..., K].
-        If `self.hard` is True, returns straight-through hard one-hot (but gradients flow through soft).
+        Generates a reparameterized sample using the Gumbel-Softmax trick.
+
+        Returns:
+            torch.Tensor: Soft or hard one-hot sample.
         """
-        gumbel_weights = F.gumbel_softmax(self.logits, tau=self.tau, hard=self.hard)
-        return gumbel_weights
+        return F.gumbel_softmax(self.logits, tau=self.tau, hard=self.hard)
 
     def rsample_value(self) -> torch.Tensor:
         r"""
-        Convenience: rsample() then project to scalar `z`.
-        Returns tensor shape [...]
+        Generates a reparameterized sample and projects it to value space.
+
+        Returns:
+            torch.Tensor: Sampled scalar values.
         """
-        weights = self.rsample()
-        return self.weights_to_values(weights)
+        return self.weights_to_values(self.rsample())
 
     def sample(self) -> torch.Tensor:
         r"""
-        Non-differentiable sample: returns weights with no grad.
+        Generates a non-differentiable sample.
+
+        Returns:
+            torch.Tensor: Sample (no grad).
         """
         with torch.no_grad():
             return self.rsample()
 
     def sample_value(self) -> torch.Tensor:
         r"""
-        Non-differentiable discrete sample projected to value space.
+        Generates a non-differentiable sample projected to value space.
+
+        Returns:
+            torch.Tensor: Sampled scalar values (no grad).
         """
         with torch.no_grad():
             return self.rsample_value()
 
     def log_prob(self, value: torch.Tensor) -> torch.Tensor:
         r"""
-        Log-probability of a soft or hard one-hot vector under the categorical distribution.
+        Computes the log probability of a soft or hard one-hot value.
 
         Args:
-            value (torch.Tensor): One-hot or soft one-hot vector of shape [B, K].
+            value (torch.Tensor): Soft or hard one-hot vector.
 
         Returns:
-            torch.Tensor: Log-probabilities of shape [B].
+            torch.Tensor: Log probability.
         """
         if self._validate_args:
             self._validate_sample(value)
@@ -147,38 +145,35 @@ class GeneralizedGumbelSoftmax(TorchDistribution):
         log_probs = F.log_softmax(self.logits, dim=-1)
         return (value * log_probs).sum(dim=-1)
 
-
     def _validate_sample(self, value: torch.Tensor):
         r"""
-        Validates that `value` lies within the discrete support.
+        Validates the sample.
+
+        Args:
+            value (torch.Tensor): Sample to validate.
         """
         if self._validate_args:
             if value.dim() > 1:
                 if self.hard and ((value != 1.0) & (value != 0.0)).any():
                     raise ValueError(
-                        f"If `self.hard` is `True`, then all coordinates in `value` must be 0 or 1 and you have {value}"
+                        "If `self.hard` is `True`, sample must contain only 0/1 entries."
                     )
                 if not self.hard and (value < 0).any():
                     raise ValueError(
-                        f"If `self.hard` is `False`, then all coordinates in `value` must be >= 0 and you have {value}"
+                        "If `self.hard` is `False`, sample entries must be >= 0."
                     )
 
 
 class GeneralizedGumbelSoftmaxNP(GeneralizedGumbelSoftmax):
     r"""
-    Generalized Gumbel-Softmax distribution for arbitrary discrete distributions.
-
-    This version expects `dist` to be a custom object with either
-    a `prob(values)` or `log_prob(values)` method that returns
-    probabilities (or log-probabilities) for the given discrete `values`.
+    Generalized Gumbel-Softmax with explicit density function.
 
     Args:
-        dist: Custom distribution object implementing either
-              `.prob(values)` or `.log_prob(values)`.
-        values (torch.Tensor): Support values of shape `[K]` or `[B, K]`.
-        tau (float): Gumbel-softmax temperature.
-        eta (float, optional): Optional cutoff on cumulative probability.
-        hard (bool): Whether to sample hard or soft.
+        dist: Distribution object implementing `.prob(values)` or `.log_prob(values)`.
+        values (torch.Tensor): Discrete support values.
+        tau (torch.Tensor, optional): Temperature hyper-parameter. Defaults to 0.5.
+        eta (float, optional): Optional cumulative probability cutoff. Defaults to None.
+        hard (bool, optional): Whether to return hard samples. Defaults to False.
     """
 
     def __init__(
@@ -189,29 +184,38 @@ class GeneralizedGumbelSoftmaxNP(GeneralizedGumbelSoftmax):
         eta: float = None,
         hard: bool = False,
     ):
+        r"""
+        Initializes the GeneralizedGumbelSoftmaxNP distribution.
+
+        Args:
+            dist: Distribution implementing `.prob(values)` or `.log_prob(values)`.
+            values (torch.Tensor): Discrete support values.
+            tau (torch.Tensor, optional): Temperature hyper-parameter. Defaults to 0.5.
+            eta (float, optional): Cumulative probability cutoff. Defaults to None.
+            hard (bool, optional): Whether to return hard samples. Defaults to False.
+        """
         has_prob = hasattr(dist, "prob")
         has_log_prob = hasattr(dist, "log_prob")
 
         if not (has_prob or has_log_prob):
             raise TypeError(
-                "The provided `dist` object must implement either `.prob(values)` or `.log_prob(values)`."
+                "The provided `dist` must implement either `.prob(values)` or `.log_prob(values)`."
             )
 
         if has_log_prob:
             logp = dist.log_prob(values)
             probs = logp.exp()
         else:
-            probs = dist.prob(values)
-            probs = probs.clamp_min(1e-50)
+            probs = dist.prob(values).clamp_min(1e-50)
             logp = probs.log()
 
         if eta is not None:
             cumsum = torch.cumsum(probs, dim=-1)
             mask = cumsum <= eta
             mask[..., 0] = True
-            max_valid_idx = mask.sum(dim=-1).max().item()
-            values = values[..., :max_valid_idx]
-            probs = probs[..., :max_valid_idx]
+            max_valid = mask.sum(dim=-1).max().item()
+            values = values[..., :max_valid]
+            probs = probs[..., :max_valid]
             probs = probs / probs.sum(dim=-1, keepdim=True)
 
         super().__init__(values=values, probs=probs, tau=tau, hard=hard)
