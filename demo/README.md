@@ -51,12 +51,10 @@ For additional demo experiments, we have implemented Variational Autoencoders (V
     # VAE with Rebar Relaxation Bernoullii latent space
     python vae_rebar_relaxation.py
 
-    # VAE with Poisson latent 
-    space
+    # VAE with Poisson latent space
     python vae_generalized_gumbel_poisson.py
 
-    # VAE with Geometric latent 
-    space
+    # VAE with Geometric latent space
     python vae_generalized_gumbel_geometric.py
     ```
 2. **View the results:**
