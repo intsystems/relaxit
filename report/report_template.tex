@@ -4,15 +4,16 @@
 \usepackage[utf8]{inputenc}
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
 
 \hyphenation{op-tical net-works semi-conduc-tor}
 
 \begin{document}
-
 \title{Just Relax It! Leveraging Relaxation for Discrete Variables Optimization}
 
-\author{Daniil Dorin, Igor Ignashin, Nikita Kiselev, Andrey Veprikov, Stepanov Ilya, Vladislav Meshkov, Vladislav Minashkin, Papay Ivan \\
-\textbf{Intelligent Systems}\\
+\author{Daniil Dorin, Igor Ignashin, Nikita Kiselev, Andrey Veprikov, Ilya Stepanov, Vladislav Meshkov, Vladislav Minashkin, Ivan Papay \\
+\textbf{Intelligent Systems} \\
 \textbf{MIPT 2025}}
 
 \date{2025}
@@ -20,12 +21,12 @@
 \maketitle
 \tableofcontents
 \listoffigures
-\listoftables
+% \listoftables
 
 \IEEEpeerreviewmaketitle
 
 \begin{abstract}
-This report presents ``Just Relax It'' (relaxit), a Python library designed to streamline the optimization of discrete probability distributions in neural networks. The library offers a comprehensive suite of advanced relaxation techniques compatible with PyTorch, addressing the challenges in training generative models with discrete latent variables. We demonstrate the effectiveness of our approach through Variational Autoencoder (VAE) experiments with discrete latents, showing that proper relaxation techniques enable adequate learning and reconstruction. The library implements multiple relaxation methods including Relaxed Bernoulli, Hard Concrete, Straight-Through Bernoulli, and others, providing researchers with flexible tools for discrete variable optimization in machine learning applications.
+This report presents ''Just Relax It'' (\texttt{relaxit}), a Python library designed to streamline the optimization of discrete probability distributions in neural networks. The library offers a comprehensive suite of advanced relaxation techniques compatible with PyTorch, addressing the challenges in training generative models with discrete latent variables. We demonstrate the effectiveness of our approach through Variational Autoencoder (VAE) experiments with discrete latents, showing that proper relaxation techniques enable adequate learning and reconstruction. The library implements multiple relaxation methods including Relaxed Bernoulli, Hard Concrete, Straight-Through Bernoulli, and others, providing researchers with flexible tools for discrete variable optimization in machine learning applications.
 \end{abstract}
 
 \section{Introduction}
@@ -44,44 +45,252 @@ This problem is particularly challenging because discrete distributions do not p
 
 \section{Proposed Solutions}
 \subsection{Generalized Gumbel-Softmax}
-The Generalized Gumbel-Softmax (GenGS) estimator enables gradient-based optimization for various discrete distributions including Poisson, geometric, binomial, multinomial, and negative binomial distributions.
 
-The core innovation of GenGS lies in its ability to handle generic discrete distributions through a combination of three key techniques: truncation of discrete random variables, application of the Gumbel-Softmax trick, and a specialized linear transformation. This generalization addresses a critical limitation in existing methods, which were primarily restricted to Bernoulli and categorical distributions.
+\textbf{Overview}
+Joo et al. \cite{joo2020generalized} propose a generalized form of the Gumbel–Softmax estimator. Their main objective is to extend the reparameterization trick beyond categorical and Bernoulli variables so that a broad class of discrete distributions (e.g. Poisson, geometric, binomial, negative binomial) that have countable or large supports can be handled differentiably. To achieve this they truncate an infinite/countable support to a finite set, form categorical probabilities on that truncated support, apply a Gumbel–Softmax relaxation to obtain a soft one-hot, and finally map the relaxed one-hot back to the original discrete values via a linear transform.
 
-The methodological foundation of GenGS builds upon the observation that many discrete distributions can be represented through appropriate transformations of categorical distributions. The truncation component handles infinite support distributions by limiting their range to a finite set of values, while maintaining mathematical soundness through careful boundary handling. The Gumbel-Softmax trick provides the differentiable relaxation mechanism, and the linear transformation enables mapping between different distributional forms.
+\textbf{Methodology}
+Let \(D(\lambda)\) be a discrete distribution parameterized by \(\lambda\). After truncation we consider a finite ordered outcome vector \(\mathcal{C}=(c_1,\dots,c_n)\). Define the categorical probabilities
+\[
+\pi_k = p_\lambda(c_k),\qquad k=1,\dots,n-1,
+\qquad
+\pi_n = 1 - \sum_{k=1}^{n-1}\pi_k,
+\]
+so that \(\sum_{k=1}^n\pi_k=1\). Draw i.i.d.\ Gumbel noise \(g_k\) by
+\[
+g_k = -\log(-\log(u_k)),\quad u_k\sim\mathrm{Uniform}(0,1).
+\]
+The Gumbel--Softmax relaxed (soft) one-hot vector \(w\) with temperature \(\tau>0\) is
+$$
+w = \operatorname{softmax}\!\Big(\frac{\log\pi + g}{\tau}\Big),
+$$
 
-\subsection{Relaxed Bernoulli}
-Yamada \& Lindenbaum et al. (2018) proposed the Relaxed Bernoulli distribution, which provides a continuous relaxation of Bernoulli random variables suitable for gradient-based optimization.
+$$
+w_k = \frac{\exp((\log\pi_k + g_k)/\tau)}{\sum_{j=1}^n \exp((\log\pi_j + g_j)/\tau)}.
+$$
+Finally map back to the original-value sample
+\[
+z \;=\; T(w) \;=\; \sum_{k=1}^n w_k\, c_k .
+\]
 
-\subsection{Hard Concrete}
-Louizos et al. (2018) introduced the Hard Concrete distribution, which combines concrete (Gumbel-Softmax) relaxation with hard sigmoid transformations to enable sparse feature selection.
+\subsection{Relaxed Bernoulli Distribution}
+\textbf{Overview}
+Maddison et al. \cite{maddison2016concrete} and Jang et al. \cite{jang2016categorical} introduced a continuous relaxation of Bernoulli and categorical variables. Their primary goal is to enable gradient-based optimization in models with binary latent variables by removing the non-differentiability of direct $\{0,1\}$ sampling. They propose a temperature-controlled reparameterization (the Relaxed Bernoulli/Concrete formulation) that maps logistic/Gumbel-style noise through a temperature-scaled sigmoid/softmax to produce a differentiable approximation in $(0,1)$ whose sharpness approaches a true discrete sample as the temperature decreases.
+
+\textbf{Methodology}
+Formally, instead of sampling $b \sim \text{Bernoulli}(\alpha)$ where $b \in \{0,1\}$, the Relaxed Bernoulli samples continuous values $z \in (0,1)$ using the following reparameterization:
+
+\[
+z = \sigma\left(\frac{\log \alpha - \log(1-\alpha) + \log u - \log(1-u)}{\tau}\right)
+\]
+
+where $u \sim \text{Uniform}(0,1)$ and $\sigma(\cdot)$ is the sigmoid function.
+
+\subsection{Hard Concrete Distribution}
+
+\textbf{Overview}
+Louizos et al. \cite{louizos2017learning} proposed the Hard Concrete distribution as a practical relaxation for learning sparse neural networks. Their aim is to combine the benefits of a differentiable relaxation during training with exact zeros at inference time so that sparsity can be realized in practice. They introduce a stretched/shifted Concrete relaxation together with a hard-sigmoid/clipping operation that produces exact 0/1 outputs at deployment while remaining differentiable during optimization, enabling effective $L_0$-type regularization via learned binary gates.
+
+\textbf{Methodology}
+Given a uniform random variable \(u \sim \text{Uniform}(0,1)\), samples are generated as:
+
+\[
+\bar{s} = \sigma\left(\frac{\log u - \log(1-u) + \log \alpha}{\beta}\right) \cdot (\zeta - \gamma) + \gamma
+\]
+
+\[
+z = \max(0, \min(1, \bar{s}))
+\]
+
+where \(\sigma(\cdot)\) is the sigmoid function, \(\alpha\) is the location parameter, and \(\beta\) is the temperature. Common values are \(\gamma = -0.1\) and \(\zeta = 1.1\).
 
 \subsection{Straight-Through Bernoulli}
-Cheng et al. (2019) developed the Straight-Through Bernoulli estimator, which uses a hard threshold during forward pass while maintaining differentiable gradients during backward pass.
+\textbf{Overview}
+The Straight-Through (ST) estimator — a practical technique with roots in earlier work on stochastic neurons (e.g. Bengio et al., 2013) and more formal analyses in later papers (e.g. Cheng et al., 2019) — is designed to reconcile exact discrete forward sampling with usable gradients in backpropagation. Its main objective is to obtain true binary decisions on the forward pass while providing an effective surrogate gradient for parameter updates. The method implements a hard threshold (giving $\{0,1\}$ outputs) during the forward pass and uses a differentiable proxy (or simply copies the upstream gradient) during the backward pass, offering a simple and efficient alternative to continuous relaxations for many practical tasks.
+
+\textbf{Methodology}
+The forward pass samples uniform random variables $z_i\sim\mathcal{U}[0,1]$ and applies a hard threshold:
+$$h_{i}=f(a_{i},z_{i})=\mathbb{1}_{z_{i}>\sigma(a_{i})}$$
+where $\sigma(a_i)$ is the sigmoid-transformed logit parameter. The indicator function $\mathbb{1}_{\cdot}$ produces exact binary outputs $\{0,1\}$. During backward pass, the gradient of the loss $L$ with respect to the logit $a_i$ is approximated by straight-through estimation:
+$$g_{i}=\frac{\partial L}{\partial h_{i}}$$
 
 \subsection{Stochastic Times Smooth}
-Bengio et al. (2013) proposed Stochastic Times Smooth method, which combines stochastic neurons with smooth approximations for conditional computation.
+\textbf{Overview}
+Bengio et al. \cite{bengio2013estimating} introduced the Stochastic Times Smooth (STS) idea as a more principled way to train stochastic binary neurons. The core objective is to keep exact binary stochasticity in the forward pass while enabling gradient flow in a principled manner during backpropagation, avoiding purely heuristic gradient copying. STS decomposes the neuron into a stochastic binary component and a smooth scaling factor so that the expected behaviour of the stochastic unit is approximated in a differentiable way, improving optimization stability relative to naïve straight-through methods.
+
+\textbf{Methodology}
+The STS unit generates outputs through a two-step process that separates stochastic sampling from differentiable scaling:
+
+\[
+\begin{aligned}
+p_i &= \sigma(a_i) \\
+b_i &\sim \text{Binomial}(\sqrt{p_i})  \\
+h_i &= b_i \cdot \sqrt{p_i}
+\end{aligned}
+\]
+
+where $\sigma(\cdot)$ is the sigmoid function, $a_i$ is the pre-activation logit, $b_i$ is a Bernoulli random variable with probability $\sqrt{p_i}$, and $h_i$ is the final output.
 
 \subsection{Correlated Relaxed Bernoulli}
-Lee \& Imrie et al. (2022) introduced Correlated Relaxed Bernoulli, which generates correlated gate vectors from a multivariate Bernoulli distribution using a Gaussian copula.
+\textbf{Overview}
+Lee et al. \cite{lee2022selfsupervision} (and related recent works on correlated relaxed gates) proposed a correlated extension of the relaxed Bernoulli aimed at modeling dependencies between binary decisions. The main motivation is that in many applications the binary variables are not independent (feature selection, structured gates), and naive independent relaxations ignore that structure. They propose to generate correlated relaxed gate vectors by coupling marginal relaxed Bernoulli samples through a Gaussian copula (i.e. sample correlated Gaussian noise, transform to uniforms, then apply the logistic/sigmoid reparameterization), thereby producing a differentiable, multivariate relaxation that captures dependencies between dimensions. 
+
+\textbf{Methodology}
+The key innovation lies in reparameterizing correlated binary variables through a shared noise source. The relaxed gate vector $\tilde{m}_{k}$ is generated using the reparameterization trick:
+$$\tilde{m}_{k}=\sigma\left(\frac{1}{\tau}\left(\log\pi_{k}-\log(1-\pi_{k})+\log U_{k}-\log(1-U_{k})\right)\right)$$
+where $U_{k}\sim\mathcal{U}[0,1]$ is a uniform random variable, $\pi_{k}$ denotes the success probability for dimension $k$, and $\tau$ is a temperature hyperparameter controlling relaxation sharpness. The logarithmic ratio $\log U_{k}-\log(1-U_{k})$ transforms uniform noise into a logistic distribution, enabling differentiable sampling.
 
 \subsection{Invertible Gaussian}
-Potapczynski et al. (2019) developed Invertible Gaussian Reparameterization as an alternative to Gumbel-Softmax that provides better distributional properties.
+\textbf{Overview}
+Potapczynski et al. \cite{potapczynski2019invertible} revisit the Gumbel–Softmax by proposing a flexible family of reparameterizations based on Gaussian noise followed by invertible smooth transforms. Their objective is to provide a modular and more flexible alternative to Gumbel–Softmax that allows closed-form KL computations and the insertion of invertible transforms (flows) before mapping to the simplex. Concretely, they sample Gaussian noise, apply a location–scale transform, and then use an invertible mapping to the simplex to obtain relaxed categorical-like samples with desirable analytic properties.
+
+\textbf{Methodology}
+Sample Gaussian noise $\varepsilon \sim \mathcal{N}(0, I_{K-1})$. Apply location-scale transformation: 
+    $$y = \mu + \text{diag}(\sigma)\varepsilon$$
+Map to simplex via temperature-controlled function 
+    $$\tilde{z} = g(y, \tau)$$
+
+where $\mu \in \mathbb{R}^{K-1}$ and $\sigma \in (0, \infty)^{K-1}$ are parameters, $\tau > 0$ is a temperature hyperparameter, and $g(\cdot, \tau)$ is an invertible smooth function mapping to the simplex $S^{(K-1)} = \{z \in \mathbb{R}^{K-1} : z_k > 0 \text{ and } \sum_{k=1}^{K-1} z_k < 1\}$.
 
 \subsection{Gumbel-Softmax TOP-K}
-Kool et al. (2019) extended Gumbel-Softmax to handle top-k sampling without replacement, enabling more structured discrete distributions.
+
+\textbf{Overview}
+Kool et al. \cite{kool2019stochastic} introduce the Gumbel-Top-k trick to sample $k$ distinct elements without replacement from a categorical distribution. Their goal is to generalize the single-sample Gumbel–Max trick so that multiple items can be drawn in one pass while preserving correct sampling probabilities. They show that adding independent Gumbel noise to log-probabilities and taking the top-$k$ perturbed values yields an exact sample without replacement, and they provide efficient algorithms (e.g. stochastic beam search) to apply this idea at scale.
+
+\textbf{Methodology}
+Given a categorical distribution over $n$ elements with probabilities $p_i$ and log-probabilities $\phi_i = \log p_i$. For each element $i \in \{1, \dots, n\}$, add independent Gumbel noise to its log-probability:
+    \[
+    G_{\phi_i} = \phi_i + G_i, \quad \text{where } G_i \sim \text{Gumbel}(0)
+    \]
+    The Gumbel(0) distribution can be sampled via $G_i = -\log(-\log(U_i))$ with $U_i \sim \text{Uniform}(0,1)$. Identify the indices of the $k$ largest perturbed log-probabilities:
+    \[
+    I_1^*, I_2^*, \dots, I_k^* = \operatorname{argtopk}_{i} G_{\phi_i}
+    \]
+    where $\operatorname{argtopk}$ returns the indices of the $k$ largest values in descending order.The ordered sequence $(I_1^*, I_2^*, \dots, I_k^*)$ constitutes a sample of $k$ elements drawn without replacement from the categorical distribution. The joint probability of a specific ordered sample $(i_1, i_2, \dots, i_k)$ is given by:
+    \[
+    P(I_1^* = i_1, \dots, I_k^* = i_k) = \prod_{j=1}^k \frac{\exp(\phi_{i_j})}{\sum_{l \in N_j} \exp(\phi_l)}
+    \]
+    where $N_j = \{1, \dots, n\} \setminus \{i_1, \dots, i_{j-1}\}$ is the set of remaining elements after the first $j-1$ selections. This corresponds exactly to sequential sampling without replacement, where at each step the probability of selecting a remaining element is proportional to its original probability $p_i$.
 
 \subsection{Closed-form Laplace Bridge}
-Hobbhahn et al. (2020) proposed a closed-form Laplace Bridge between Dirichlet and Logistic-Normal distributions, enabling efficient approximation.
+\textbf{Overview}
+Hobbhahn et al. \cite{hobbhahn2022fast} revisit the Laplace Bridge idea to obtain a closed-form Dirichlet approximation of the softmax-of-Gaussian predictive distribution (see Hobbhahn et al., 2020/2022). Their objective is to avoid expensive sampling from a Gaussian over logits and instead provide an analytic mapping from a Gaussian in logit space to a Dirichlet on the probability simplex, enabling fast uncertainty estimation for classification outputs. The proposal yields explicit formulae that relate Gaussian parameters $(\mu,\Sigma)$ to Dirichlet parameters $\alpha$, providing a computationally cheap approximation for downstream use in Bayesian deep learning.
 
-\section{Criteria for Assessing Solutions} \label{sec:criteria}
-The relaxation methods are evaluated based on the following criteria:
+\textbf{Methodology}
+The Laplace Bridge (LB) method provides an analytic mapping between the parameters of a Gaussian distribution over logits and the parameters of a Dirichlet distribution over probabilities in the simplex.
 
+The Dirichlet distribution over the probability simplex $\pi \in \mathbb{R}^K$ with parameters $\alpha \in \mathbb{R}^K_+$ has the density:
+\[
+\text{Dir}(\pi \mid \alpha) := \frac{\Gamma\left(\sum_{k=1}^K \alpha_k\right)}{\prod_{k=1}^K \Gamma(\alpha_k)} \prod_{k=1}^K \pi_k^{\alpha_k - 1}
+\]
+where $\Gamma(\cdot)$ is the gamma function.
+
+Consider the variable $\pi$ obtained by applying the softmax to a vector $z \in \mathbb{R}^K$:
+\[
+\pi_k(z) := \frac{\exp(z_k)}{\sum_{l=1}^K \exp(z_l)}, \quad k = 1, \dots, K
+\]
+Then the density of the Dirichlet distribution, expressed in terms of $z$, must be multiplied by the Jacobian of the transformation:
+\[
+\left|\det \frac{\partial \pi}{\partial z} \right| = \prod_{k=1}^K \pi_k(z)
+\]
+which leads to the modified density:
+\[
+\text{Dir}_z(\pi(z) \mid \alpha) := \frac{\Gamma\left(\sum_{k=1}^K \alpha_k\right)}{\prod_{k=1}^K \Gamma(\alpha_k)} \prod_{k=1}^K \pi_k(z)^{\alpha_k}
+\]
+
+The Laplace Bridge establishes an analytic correspondence between the parameters $\alpha$ of the Dirichlet distribution and the parameters $(\mu, \Sigma)$ of the Gaussian approximation for $z$:
+\[
+\begin{aligned}
+\mu_k &= \log \alpha_k - \frac{1}{K} \sum_{l=1}^K \log \alpha_l, \\
+\Sigma_{kl} &= \delta_{kl} \frac{1}{\alpha_k} - \frac{1}{K} \left( \frac{1}{\alpha_k} + \frac{1}{\alpha_l} - \frac{1}{K} \sum_{u=1}^K \frac{1}{\alpha_u} \right)
+\end{aligned}
+\]
+where $\delta_{kl}$ is the Kronecker delta.
+
+The inverse transformation (pseudo-inverse mapping) allows obtaining the Dirichlet parameters from the Gaussian approximation:
+\[
+\alpha_k = \frac{1}{\Sigma_{kk}} \left( 1 - \frac{2}{K} + \frac{2}{K^2} \sum_{l=1}^K e^{\mu_k - \mu_l} \right)^{-1}
+\]
+This equation ignores the off-diagonal elements of $\Sigma$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{RELAX (REinforcement Learning with EXpected gradients)}
+\textbf{Overview}
+Grathwohl et al. \cite{grathwohl2017backpropagation} introduce RELAX, a general framework that learns a neural control variate to produce low-variance, unbiased gradient estimators for functions of discrete random variables. The primary aim is to combine the low variance of reparameterization-based estimators with the unbiasedness of score-function (REINFORCE) estimators, while avoiding manual control-variates. RELAX achieves this by introducing a learned control variate $c_\phi$ evaluated on both unconditional and conditional relaxations of the discrete variable and jointly optimizing the variate parameters to minimize gradient variance, producing an unbiased but much lower-variance estimator.
+
+\textbf{Methodology}
+RELAX aims to estimate $\nabla_\theta \mathbb{E}_{p(b|\theta)}[f(b)]$, where $b$ is a discrete random variable. The method introduces a relaxed continuous variable $z \sim p(z|\theta)$ and a deterministic mapping $H(z) = b$. This leads to the DLAX estimator:
+\[
+\hat{g}_{\text{DLAX}} = f(b) \nabla_\theta \log p(b|\theta) - c_\phi(z) \nabla_\theta \log p(z|\theta) + \nabla_\theta c_\phi(z)
+\]
+However, the DLAX estimator suffers from poor correlation between the log-derivative terms. To address this, RELAX introduces a conditional distribution $\tilde{z} \sim p(z|b, \theta)$, allowing the control variate to be evaluated at both unconditional ($z \sim p(z|\theta)$) and conditional ($\tilde{z} \sim p(z|b, \theta)$) relaxations.
+
+The RELAX estimator is then formulated as:
+\[
+\hat{g}_{\text{RELAX}} = [f(b) - c_\phi(\tilde{z})] \nabla_\theta \log p(b|\theta) + \nabla_\theta c_\phi(z) - \nabla_\theta c_\phi(\tilde{z})
+\]
+where $b = H(z)$, $z \sim p(z|\theta)$, and $\tilde{z} \sim p(z|b, \theta)$.
+
+The parameters $\phi$ of the control variate are optimized by minimizing the variance of the gradient estimator. A single-sample unbiased estimate is given by:
+\[
+\hat{g}_\phi = \frac{\partial \hat{g}^2_\theta}{\partial \phi}
+\]
+This enables joint optimization of both the model parameters $\theta$ and the control variate parameters $\phi$ during training, making RELAX a powerful and flexible tool for gradient estimation in models with discrete variables.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Decoupled Straight-Through Gumbel-Softmax}
+
+\textbf{Overview}
+Shah et al. \cite{shah2024improving} propose a novel decoupling of forward and backward pass temperatures for Straight-Through Gumbel-Softmax (ST-GS) to address the fundamental trade-off between discrete sampling and gradient quality. Standard ST-GS uses a single temperature $\tau$ for both operations, limiting the ability to optimize discretization sharpness independently from gradient smoothness. The method introduces separate temperature parameters to enable sharp discrete forward passes while maintaining smooth, low-variance backward gradients, achieving superior performance particularly for tasks requiring precise categorical decisions such as neural architecture search and hard attention mechanisms.
+
+\textbf{Methodology}
+The decoupled ST-GS uses separate temperature parameters: $\tau^{f}$ for the forward discrete sampling and $\tau^{b}$ for backward gradient approximation. The forward pass performs discrete sampling via argmax:
+
+$$z=\text{one-hot}\left(\text{argmax}\left(\text{softmax}\left(\frac{l+g}{\tau^{f}}\right)\right)\right)$$
+
+where $l$ represents input logits and $g\sim\text{Gumbel}(0,1)$.
+
+The backward pass computes smooth gradients through a differentiable relaxation:
+
+$$\frac{\partial\mathcal{L}}{\partial l}\approx\frac{\partial\mathcal{L}}{\partial z}\frac{\partial\hat{z}^{b}}{\partial l},\quad\hat{z}^{b}=\text{softmax}\left(\frac{l+g}{\tau^{b}}\right)$$
+
+The optimal configuration uses $\tau^{f}<\tau^{b}$, preserving discrete structure in activations while ensuring stable optimization dynamics.
+
+\subsection{REBAR Relaxation}
+
+\textbf{Overview} The REBAR \cite{tucker2017rebar} method combines the low-variance but biased Concrete relaxation with the unbiased but high-variance REINFORCE estimator through a novel control variate.
+
+\textbf{Methodology} For binary random variables $b \sim \text{Bernoulli}(\theta)$, we want to estimate:
+\[
+\nabla_\theta \mathbb{E}_{p(b)}[f(b)] = \mathbb{E}_{p(b)}\left[f(b)\nabla_\theta \log p(b)\right]
+\]
+
+Parameterize $b = H(z)$ where $z$ are Logistic random variables:
+\[
+z = g(u, \theta) = \log\frac{\theta}{1-\theta} + \log\frac{u}{1-u}, \quad u \sim \text{Uniform}(0,1)
+\]
+Replace hard threshold $H(z)$ with sigmoid relaxation $\sigma_\lambda(z) = \sigma(z/\lambda)$.
+
+The REBAR gradient estimator is:
+\[
+\nabla_\theta \mathbb{E}_{p(b)}[f(b)] = \mathbb{E}_{p(u,v)}\left[
+\left[f(H(z)) - \eta f(\sigma_\lambda(\tilde{z}))\right]\nabla_\theta \log p(b)\big|_{b=H(z)}
+\right.
+\]
+\[
+\left.
++ \eta\nabla_\theta f(\sigma_\lambda(z)) - \eta\nabla_\theta f(\sigma_\lambda(\tilde{z}))
+\right]
+\]
+where:
 \begin{itemize}
-\item \textbf{Gradient Quality}: How accurately the relaxed gradient approximates the true discrete gradient
-\item \textbf{Flexibility}: Ability to handle various discrete distributions and constraints
-\item \textbf{Convergence Properties}: Impact on training stability and final model performance
+    \item $z = g(u, \theta)$
+    \item $\tilde{z} = \tilde{g}(v, H(z), \theta)$ is the reparameterization of $p(z|b)$
+    \item $\eta$ is a scaling parameter optimized to minimize variance
 \end{itemize}
+
+The REBAR estimator remains unbiased for any temperature parameter $\lambda > 0$, ensuring mathematical correctness regardless of the relaxation tightness. REBAR exhibits an important theoretical connection to MuProp: as $\lambda \to \infty$, the REBAR estimator converges to the MuProp estimator without its linear term, providing a smooth interpolation between these approaches.
 
 \section{Research Methodology}
 Our research methodology involved comprehensive implementation and experimental validation of each relaxation technique. We followed a systematic approach:
@@ -89,58 +298,95 @@ Our research methodology involved comprehensive implementation and experimental 
 \begin{itemize}
 \item \textbf{Library Design}: We built upon PyTorch's distribution framework, ensuring compatibility with existing deep learning workflows
 \item \textbf{Algorithm Implementation}: Each relaxation method was implemented as a custom distribution class inheriting from TorchDistribution
-\item \textbf{Experimental Validation}: We conducted controlled experiments on standard datasets (MNIST) to evaluate each method's performance
-\item \textbf{Comparative Analysis}: Methods were compared based on reconstruction quality, training stability, and computational requirements
+\item \textbf{Experimental Validation}: We conducted controlled experiments on standard dataset (MNIST) to evaluate each method's performance on VAE
 \end{itemize}
 
 The implementation focused on providing consistent interfaces while maintaining the mathematical correctness of each relaxation technique. All distributions implement essential methods including \texttt{rsample()} for reparameterized sampling and \texttt{log\_prob()} for likelihood computation.
 
+In our library, you can also find an implementation of the Laplace bridge between the Dirichlet and Logistic–Normal distributions. 
+
+To evaluate RELAX alongside REINFORCE and A2C, a unified benchmarking pipeline was implemented in PyTorch using Gym environments.
+The RELAX agent is implemented as a policy gradient method for discrete action spaces that combines a feed-forward actor network with a control-variate critic conditioned on Gumbel-Softmax relaxations of the discrete actions. The training loop for RELAX collects trajectories with both relaxed and conditional Gumbel samples, computes low-variance, unbiased gradient estimates using the RELAX estimator, and alternates critic updates (to minimize gradient variance) with custom actor updates based on the accumulated RELAX gradients. This implementation is used as the final branch of the methodology to generate the learning curves summarized in Figure~\ref{fig_cart_pole_taxi}.
+
+
 \section{Analysis and Interpretation}
-Our experimental results demonstrate the effectiveness of relaxation techniques for discrete variable optimization. The VAE with discrete latents trained using Correlated Relaxed Bernoulli achieved promising results on MNIST dataset.
+Our experimental results demonstrate the effectiveness of relaxation techniques for discrete variable optimization. Implementations with relaxations on VAE are given in the demo. For example, the VAE with discrete latents trained using Correlated Relaxed Bernoulli achieved promising results on MNIST dataset.
 
 The reconstruction results (Fig. 1) show that the model successfully learned to encode and decode digit images, while the sampling results (Fig. 2) demonstrate that the latent space captured meaningful variations in the data. This suggests that the reparameterization is occurring correctly and the gradients are propagating effectively through the discrete latent variables.
 
-Among the different methods, we observed that:
-\begin{itemize}
-\item Correlated Relaxed Bernoulli provided stable training and good reconstruction quality
-\item Gumbel-Softmax variants showed competitive performance but required careful temperature scheduling
-\item The Straight-Through estimator was computationally efficient but sometimes exhibited higher variance
-\end{itemize}
-
 The evidence indicates that relaxation techniques can successfully bridge the gap between discrete distributions and gradient-based optimization, though the choice of method depends on the specific application requirements and constraints.
+
+
+Figure~\ref{fig_cart_pole_taxi} compares the learning curves of REINFORCE, A2C, and RELAX on the Cart-pole-v1 (left) and Taxi-v3 (right) benchmarks. On Cart-pole, RELAX exhibits stable and nearly linear reward growth, outperforming REINFORCE and approaching the performance of A2C while avoiding noticeable instability or collapse.
+
+On Taxi-v3, RELAX clearly dominates both baselines in Figure~\ref{fig_cart_pole_taxi}, starting from a higher reward and improving at a faster rate throughout training. Its smoother and steeper learning curve indicates that RELAX handles the more complex, discrete structure of Taxi-v3 more effectively, converging to higher-quality policies with fewer plateaus than REINFORCE and A2C.
 
 \begin{figure}[!h]
 \centering
-\includegraphics[width=0.8\columnwidth]{vae_correlated_bernoulli_reconstruction.png}
+\includegraphics[width=0.8\columnwidth]{reconstruction_10.png}
 \caption{VAE with Correlated Relaxed Bernoulli latents. Reconstruction.}
 \label{fig_reconstruction}
 \end{figure}
 
 \begin{figure}[!h]
 \centering
-\includegraphics[width=0.8\columnwidth]{vae_correlated_bernoulli_sample.png}
+\includegraphics[width=0.8\columnwidth]{sample_10.png}
 \caption{VAE with Correlated Relaxed Bernoulli latents. Sampling.}
 \label{fig_sampling}
 \end{figure}
 
-\begin{table}[h]
+\begin{figure}[!h]
 \centering
-\begin{tabular}{l c c c c}
-\toprule
-Method & Final Loss \\
-\midrule
-Relaxed Bernoulli &  0.145 \\
-Hard Concrete &  0.138 \\
-Straight-Through &  0.152 \\
-Correlated Relaxed Bernoulli &  0.132 \\
-Gumbel-Softmax & 0.140 \\
-\bottomrule
-\end{tabular}
+\includegraphics[width=0.45\columnwidth]{rl_bench_img/cart-pole-v1.png}
+\hfill
+\includegraphics[width=0.45\columnwidth]{rl_bench_img/taxi-v3.png}
+\caption{Comparison of A2C, REINFORCE, and RELAX algorithms on the Cart-pole (left) and Taxi-v3 (right) benchmarks. A2C employs an actor-critic architecture for reduced gradient variance, REINFORCE uses a pure policy gradient approach, and RELAX leverages relaxation techniques for improved convergence and stability in reinforcement learning tasks}
 
-\vspace{0.5cm} % Добавлен вертикальный отступ
-\caption{Comparative analysis of relaxation methods}
-\label{tab:comparison}
-\end{table}
+\label{fig_cart_pole_taxi}
+\end{figure}
+
+
+Experiments (Fig. 4, 5, 6) related to the Laplace bridge between the Logistic-normal and the dirichlet distribution are also demonstrated.
+
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\columnwidth]{lognorm_to_dir.png}
+\caption{Logistic-Normal
+(approximation to Dirichlet)}
+\label{fig_reconstruction}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\columnwidth]{dir.png}
+\caption{Dirichlet (with random parameters)}
+\label{fig_reconstruction}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\columnwidth]{dir_to_lognorm.png}
+\caption{Dirichlet (approximation to Logistic-Normal)}
+\label{fig_reconstruction}
+\end{figure}
+
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.9\columnwidth]{stgs_temperature.png}
+\caption{Effect of Temperature on Distribution Sharpness for Decoupled ST-GS}
+\label{fig_reconstruction}
+\end{figure}
+
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.9\columnwidth]{stgs_heatmap.png}
+\caption{Effect of Temperature Combinations on Sampling for Decoupled ST-GS}
+\label{fig_reconstruction}
+\end{figure}
+
 
 \section{Conclusions and Recommendations}
 In summary, Just Relax It is a powerful tool for researchers and practitioners working with discrete variables in neural networks. By offering a comprehensive set of relaxation techniques, our library aims to make the optimization process more efficient and accessible.
@@ -148,80 +394,96 @@ In summary, Just Relax It is a powerful tool for researchers and practitioners w
 The library successfully addresses the challenge of discrete variable optimization and enables effective training of generative models with discrete latent spaces. We encourage further research into hybrid methods and automatic selection of relaxation techniques based on problem characteristics.
 
 \appendices
-\section{Implementation Details}
-Our implementation builds upon PyTorch's distribution framework while maintaining compatibility with Pyro. Key design decisions include:
+% \section{Implementation Details}
+% Our implementation builds upon PyTorch's distribution framework while maintaining compatibility with Pyro. Key design decisions include:
 
-\begin{itemize}
-\item Inheriting all relaxed distributions from \texttt{TorchDistribution} base class
-\item Implementing \texttt{batch\_shape} and \texttt{event\_shape} properties for proper shape handling
-\item Providing \texttt{rsample()} and \texttt{log\_prob()} methods for all distributions
-\item Extending PyTorch's KL-divergence for Laplace Bridge approximation
-\end{itemize}
+% \begin{itemize}
+% \item Inheriting all relaxed distributions from \texttt{TorchDistribution} base class
+% \item Implementing \texttt{batch\_shape} and \texttt{event\_shape} properties for proper shape handling
+% \item Providing \texttt{rsample()} and \texttt{log\_prob()} methods for all distributions
+% \item Extending PyTorch's KL-divergence for Laplace Bridge approximation
+% \end{itemize}
 
-For the Logistic-Normal distribution used in Laplace Bridge, we implemented \texttt{LogisticNormalSoftmax} which uses Softmax transform instead of StickBreakingTransform, maintaining dimensionality consistency.
+% For the Logistic-Normal distribution used in Laplace Bridge, we implemented \texttt{LogisticNormalSoftmax} which uses Softmax transform instead of StickBreakingTransform, maintaining dimensionality consistency.
 
 \section{Demo Experiments}
 Our demo code is available at GitHub repository. The experiments are divided into two groups:
 
 \begin{itemize}
 \item \textbf{Laplace Bridge Demonstration}: Shows the closed-form approximation between Dirichlet and Logistic-Normal distributions
-\item \textbf{VAE with Discrete Latents}: Trains Variational Autoencoders using all 7 relaxation methods on MNIST dataset
+\item \textbf{VAE with Discrete Latents}: Trains Variational Autoencoders using all relaxation methods on MNIST dataset
+\item \textbf{RELAX} on Reinforcement Learning Benchmarks: We implement the RELAX gradient estimator on several standard RL benchmarks to evaluate its performance in discrete action space environments. The experiments include classic control tasks: CartPole, Acrobot and environments from OpenAI Gym, where RELAX is compared against REINFORCE and A2C.
 \end{itemize}
 
 The Correlated Relaxed Bernoulli demonstration uses parameters: $\pi = [[0.2, 0.4, 0.4], [0.3, 0.5, 0.2]]$, correlation matrix $R$ with values $[1.0, 0.5, 0.3; 0.5, 1.0, 0.7; 0.3, 0.7, 1.0]$, and temperature $\tau = 0.1$.
 
-\begin{thebibliography}{1}
+% \begin{thebibliography}{1}
 
-\bibitem{kingma2013auto}
-Kingma, D. P. \& Welling, M.
-\emph{Auto-Encoding Variational Bayes}.
-arXiv preprint arXiv:1312.6114, 2013.
+% \bibitem{louizos2018learning}
+% Louizos, C., Welling, M., \& Kingma, D. P. (2018).
+% \textit{Learning sparse neural networks through \(L_0\) regularization}.
+% In International Conference on Learning Representations (ICLR).
 
-\bibitem{jang2016categorical}
-Jang, E., Gu, S. \& Poole, B.
-\emph{Categorical Reparameterization with Gumbel-Softmax}.
-arXiv preprint arXiv:1611.01144, 2016.
 
-\bibitem{maddison2016concrete}
-Maddison, C. J., Mnih, A. \& Teh, Y. W.
-\emph{The Concrete Distribution: A Continuous Relaxation of Discrete Random Variables}.
-arXiv preprint arXiv:1611.00712, 2016.
+% \bibitem{grathwohl2018backpropagation}
+% Grathwohl, W., Choi, D., Wu, Y., Roeder, G., \& Duvenaud, D. (2018).
+% \textit{Backpropagation through the void: Optimizing control variates for black-box gradient estimation}.
+% In International Conference on Learning Representations (ICLR).
 
-\bibitem{yamada2020feature}
-Yamada, Y., Lindenbaum, O. et al.
-\emph{Feature Selection using Stochastic Gates}.
-PMLR, 2020.
+% \bibitem{kingma2013auto}
+% Kingma, D. P. \& Welling, M.
+% \emph{Auto-Encoding Variational Bayes}.
+% arXiv preprint arXiv:1312.6114, 2013.
 
-\bibitem{lee2022self}
-Lee, J., Imrie, M. et al.
-\emph{Self-Supervision Enhanced Feature Selection with Correlated Gates}.
-ICLR, 2022.
+% \bibitem{jang2016categorical}
+% Jang, E., Gu, S. \& Poole, B.
+% \emph{Categorical Reparameterization with Gumbel-Softmax}.
+% arXiv preprint arXiv:1611.01144, 2016.
 
-\bibitem{kool2019stochastic}
-Kool, W., van Hoof, H. \& Welling, M.
-\emph{Stochastic Beams and Where to Find Them: The Gumbel-Top-k Trick for Sampling Sequences Without Replacement}.
-PMLR, 2019.
+% \bibitem{maddison2016concrete}
+% Maddison, C. J., Mnih, A. \& Teh, Y. W.
+% \emph{The Concrete Distribution: A Continuous Relaxation of Discrete Random Variables}.
+% arXiv preprint arXiv:1611.00712, 2016.
 
-\bibitem{bengio2013estimating}
-Bengio, Y., Léonard, N. \& Courville, A.
-\emph{Estimating or Propagating Gradients Through Stochastic Neurons for Conditional Computation}.
-arXiv preprint arXiv:1308.3432, 2013.
+% \bibitem{yamada2020feature}
+% Yamada, Y., Lindenbaum, O. et al.
+% \emph{Feature Selection using Stochastic Gates}.
+% PMLR, 2020.
 
-\bibitem{potapczynski2019invertible}
-Potapczynski, A., Biderman, D. et al.
-\emph{Invertible Gaussian Reparameterization: Revisiting the Gumbel-Softmax}.
-arXiv preprint arXiv:1912.09588, 2019.
+% \bibitem{lee2022self}
+% Lee, J., Imrie, M. et al.
+% \emph{Self-Supervision Enhanced Feature Selection with Correlated Gates}.
+% ICLR, 2022.
 
-\bibitem{louizos2017learning}
-Louizos, C., Welling, M. \& Kingma, D. P.
-\emph{Learning Sparse Neural Networks through $L_0$ Regularization}.
-arXiv preprint arXiv:1712.01312, 2017.
+% \bibitem{kool2019stochastic}
+% Kool, W., van Hoof, H. \& Welling, M.
+% \emph{Stochastic Beams and Where to Find Them: The Gumbel-Top-k Trick for Sampling Sequences Without Replacement}.
+% PMLR, 2019.
 
-\bibitem{hobbhahn2022fast}
-Hobbhahn, M., Kristiadi, A. \& Hennig, P.
-\emph{Fast Predictive Uncertainty for Classification with Bayesian Deep Networks}.
-PMLR, 2022.
+% \bibitem{bengio2013estimating}
+% Bengio, Y., Léonard, N. \& Courville, A.
+% \emph{Estimating or Propagating Gradients Through Stochastic Neurons for Conditional Computation}.
+% arXiv preprint arXiv:1308.3432, 2013.
 
-\end{thebibliography}
+% \bibitem{potapczynski2019invertible}
+% Potapczynski, A., Biderman, D. et al.
+% \emph{Invertible Gaussian Reparameterization: Revisiting the Gumbel-Softmax}.
+% arXiv preprint arXiv:1912.09588, 2019.
+
+% \bibitem{louizos2017learning}
+% Louizos, C., Welling, M. \& Kingma, D. P.
+% \emph{Learning Sparse Neural Networks through $L_0$ Regularization}.
+% arXiv preprint arXiv:1712.01312, 2017.
+
+% \bibitem{hobbhahn2022fast}
+% Hobbhahn, M., Kristiadi, A. \& Hennig, P.
+% \emph{Fast Predictive Uncertainty for Classification with Bayesian Deep Networks}.
+% PMLR, 2022.
+
+% \end{thebibliography}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
 
 \end{document}
