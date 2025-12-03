@@ -55,7 +55,7 @@
 5. [Blog Post 2](https://papayiv.github.io/2025/12/02/relax-it.html)
 6. [Documentation](https://intsystems.github.io/relaxit/)
 7. [Tests](https://github.com/intsystems/relaxit/tree/main/tests)
-8. [Technical Report (draft version)](https://github.com/intsystems/relaxit/tree/main/report)
+8. [Technical Report](https://github.com/intsystems/relaxit/tree/main/report)
 
 ## 💡 Motivation
 For lots of mathematical problems we need an ability to sample discrete random variables.
@@ -70,12 +70,16 @@ In this project we implement different alternatives to it.
 ## 🗃 Algorithms
 - [x] [Relaxed Bernoulli](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/GaussianRelaxedBernoulli.py), also see [📝 paper](http://proceedings.mlr.press/v119/yamada20a/yamada20a.pdf) 
 - [x] [Correlated relaxed Bernoulli](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/CorrelatedRelaxedBernoulli.py), also see [📝 paper](https://openreview.net/pdf?id=oDFvtxzPOx)
-- [x] [Gumbel-softmax TOP-K](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/GumbelSoftmaxTopK.py), also see [📝 paper](https://arxiv.org/pdf/1903.06059) 
+- [x] [Gumbel-Softmax TOP-K](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/GumbelSoftmaxTopK.py), also see [📝 paper](https://arxiv.org/pdf/1903.06059) 
 - [x] [Straight-Through Bernoulli](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/StraightThroughBernoulli.py), also see [📝 paper](https://arxiv.org/abs/1910.02176) 
 - [x] [Stochastic Times Smooth](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/StochasticTimesSmooth.py), also see [📝 paper](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=62c76ca0b2790c34e85ba1cce09d47be317c7235) 
 - [x] [Invertible Gaussian](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/InvertibleGaussian.py) with [KL implemented](https://github.com/intsystems/relaxit/blob/f398ebbbac703582de392bc33d89b55c6c99ea68/src/relaxit/distributions/kl.py#L7), also see [📝 paper](https://arxiv.org/abs/1912.09588)
 - [x] [Hard Concrete](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/HardConcrete.py), also see [📝 paper](https://arxiv.org/pdf/1712.01312) 
-- [x] [Logistic-Normal](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/LogisticNormalSoftmax.py) and [Laplace-form approximation of Dirichlet](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/approx.py), also see [ℹ️ wiki](https://en.wikipedia.org/wiki/Logit-normal_distribution) and [💻 stackexchange](https://stats.stackexchange.com/questions/535560/approximating-the-logit-normal-by-dirichlet) 
+- [x] [Logistic-Normal](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/LogisticNormalSoftmax.py) and [Laplace-form approximation of Dirichlet](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/approx.py), also see [ℹ️ wiki](https://en.wikipedia.org/wiki/Logit-normal_distribution) and [💻 stackexchange](https://stats.stackexchange.com/questions/535560/approximating-the-logit-normal-by-dirichlet)
+- [x] [Generalized Gumbel-Softmax](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/GeneralizedGumbelSoftmax.py), also see [📝 paper](https://arxiv.org/abs/2003.01847)
+- [x] [REBAR](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/RebarRelaxation.py), also see [📝 paper](https://arxiv.org/pdf/1703.07370)
+- [x] [Decoupled Straight-Through Gumbel-Softmax](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/DecoupledStraightThroughGumbelSoftmax.py), also see [📝 paper](https://arxiv.org/abs/2410.13331)
+- [x] [RELAX](https://github.com/intsystems/relaxit/blob/main/rl_benchmarks/algorithms/relax.py), also see [📝 paper](https://arxiv.org/abs/2110.11960)
 
 ## 🛠️ Install
 
