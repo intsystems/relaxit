@@ -129,6 +129,7 @@ print('sample.requires_grad:', sample.requires_grad)
 For demonstration purposes, we divide our algorithms in three[^*] different groups. Each group relates to the particular demo code:
 - [Laplace bridge between Dirichlet and LogisticNormal distributions](https://github.com/intsystems/relaxit/blob/main/demo/laplace-bridge.ipynb)
 - [REINFORCE](https://github.com/intsystems/relaxit/blob/main/demo/reinforce.ipynb)
+- [RELAX](https://github.com/intsystems/relaxit/blob/main/rl_benchmarks/relax.ipynb)
 - [Other relaxation methods](https://github.com/intsystems/relaxit/blob/main/demo/demo.ipynb)
 
 We describe our demo experiments [here](https://github.com/intsystems/relaxit/tree/main/demo).
