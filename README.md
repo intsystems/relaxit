@@ -83,11 +83,6 @@ In this project we implement different alternatives to it.
 
 ## 🛠️ Install
 
-### Install using pip
-```bash
-pip install relaxit
-```
-
 ### Install from source
 ```bash
 pip install git+https://github.com/intsystems/relaxit
