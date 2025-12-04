@@ -11,9 +11,9 @@ sys.path.insert(0, os.path.abspath('../../src'))
 
 # -- Project information -----------------------------------------------------
 
-project = "Just Relax It"
-copyright = "2024, Daniil Dorin, Igor Ignashin, Nikita Kiselev, Andrey Veprikov"
-author = "Daniil Dorin, Igor Ignashin, Nikita Kiselev, Andrey Veprikov"
+project = "Just Relax It 2.0"
+copyright = "2025, Daniil Dorin, Igor Ignashin, Nikita Kiselev, Andrey Veprikov, Ivan Papay, Vladislav Meshkov, Ilia Stepanov, Vladislav Minashkin"
+author = "Daniil Dorin, Igor Ignashin, Nikita Kiselev, Andrey Veprikov, Ivan Papay, Vladislav Meshkov, Ilia Stepanov, Vladislav Minashkin"
 
 version = __version__
 master_doc = "index"
