@@ -26,7 +26,7 @@
 \IEEEpeerreviewmaketitle
 
 \begin{abstract}
-This report presents ''Just Relax It'' (\texttt{relaxit}), a Python library designed to streamline the optimization of discrete probability distributions in neural networks. The library offers a comprehensive suite of advanced relaxation techniques compatible with PyTorch, addressing the challenges in training generative models with discrete latent variables. We demonstrate the effectiveness of our approach through Variational Autoencoder (VAE) experiments with discrete latents, showing that proper relaxation techniques enable adequate learning and reconstruction. The library implements multiple relaxation methods including Relaxed Bernoulli, Hard Concrete, Straight-Through Bernoulli, and others, providing researchers with flexible tools for discrete variable optimization in machine learning applications.
+This report presents ''Just Relax It'' (\texttt{relaxit}), a Python library designed to streamline the optimization of discrete probability distributions in neural networks. The library offers a comprehensive suite of advanced relaxation techniques compatible with PyTorch, addressing the challenges in training generative models with discrete latent variables. We demonstrate the effectiveness of our approach through Variational Autoencoder (VAE) experiments with discrete latents, showing that proper relaxation techniques enable adequate learning and reconstruction. The library implements multiple relaxation methods including Relaxed Bernoulli, Hard Concrete, Straight-Through Bernoulli, Generalized Gumbel-Softmax, Gumbel-Softmax TOP-K, REBAR, Decoupled Straight-Through Gumbel-Softmax and others, providing researchers with flexible tools for discrete variable optimization in machine learning applications. Also we implement the RELAX gradient estimator on several standard RL benchmarks to evaluate its performance in discrete action space environments.
 \end{abstract}
 
 \section{Introduction}
@@ -36,12 +36,24 @@ Pioneering generative models typically work with continuous distributions like t
 
 Thus, we present our new Python library ``Just Relax It'' that combines the best techniques for relaxing discrete distributions into an easy-to-use package. And it is compatible with PyTorch.
 
-\section{Problem Definition}
-The core problem addressed by our library is the optimization of discrete probability distributions in neural networks. Given discrete random variable $c \sim p_\phi(c)$, we need to estimate the gradient with respect to $\phi$ of the expected value of some deterministic function $f(c)$, using reparameterization trick with relaxation $c \approx \hat{c}(z, \tau)$, where $z \sim p(z)$ and $\tau > 0$ is a temperature parameter. Formally:
+\section{Notation and conventions}
+To keep the notation uniform across the entire manuscript we adopt the following conventions (used everywhere below):
 
-$$\nabla_\phi \mathbf{E}_{p_\phi(c)} f(c) \approx \mathbf{E}_{p(z)} [\nabla_\phi f(\hat{c}(z, \tau))].$$
+\begin{itemize}
+  \item $x$ — observed data / input.
+  \item $b$ — binary (discrete) random variable, $b\in\{0,1\}$.
+  \item $y$ — categorical discrete outcome as a one-hot vector $y\in\{e_1,\dots,e_K\}$ when needed.
+  \item $z$ — relaxed continuous sample (for Bernoulli: $z\in(0,1)$; for categorical: $z\in\Delta^{K-1}$, the simplex).
+  \item $\pi$ — probability vector for categorical distributions, $\pi=(\pi_1,\dots,\pi_K)$, $\sum_k\pi_k=1$.
+  \item $\alpha,\theta$ — scalar parameters for Bernoulli-like distributions (logits or probabilities depending on context).
+  \item $\tau$ — temperature parameter controlling relaxation sharpness ($\tau>0$).
+  \item $u$ (or $u_i$) — uniform noise drawn from $\mathrm{Uniform}(0,1)$ (we always use $u$ for uniform draws).
+  \item $g=(g_1,\dots,g_K)$ — vector of independent Gumbel noise components where $g_k=-\log(-\log u_k)$ and $u_k\sim\mathrm{Uniform}(0,1)$.
+  \item $\mathbb{I}\{\cdot\}$ — indicator function (we use this notation consistently for indicator events).
+  \item $H(\cdot)$ — deterministic discretization mapping (e.g. $H(z)$ is a hard threshold / argmax mapping producing a discrete variable from a relaxed $z$).
+\end{itemize}
 
-This problem is particularly challenging because discrete distributions do not permit straightforward reparameterization, requiring specialized relaxation techniques to enable gradient-based optimization.
+All inline and display formulas in the following sections adhere to these notational choices. Where an original subsection used a different local variable name (e.g. $m$, $M$, or $c$), we interpret it as described above (binary/categorical/relaxed sample) — and we use the symbols of this section consistently.
 
 \section{Proposed Solutions}
 \subsection{Generalized Gumbel-Softmax}
@@ -61,13 +73,12 @@ so that \(\sum_{k=1}^n\pi_k=1\). Draw i.i.d.\ Gumbel noise \(g_k\) by
 g_k = -\log(-\log(u_k)),\quad u_k\sim\mathrm{Uniform}(0,1).
 \]
 The Gumbel--Softmax relaxed (soft) one-hot vector \(w\) with temperature \(\tau>0\) is
-$$
+\[
 w = \operatorname{softmax}\!\Big(\frac{\log\pi + g}{\tau}\Big),
-$$
-
-$$
+\]
+\[
 w_k = \frac{\exp((\log\pi_k + g_k)/\tau)}{\sum_{j=1}^n \exp((\log\pi_j + g_j)/\tau)}.
-$$
+\]
 Finally map back to the original-value sample
 \[
 z \;=\; T(w) \;=\; \sum_{k=1}^n w_k\, c_k .
@@ -78,13 +89,11 @@ z \;=\; T(w) \;=\; \sum_{k=1}^n w_k\, c_k .
 Maddison et al. \cite{maddison2016concrete} and Jang et al. \cite{jang2016categorical} introduced a continuous relaxation of Bernoulli and categorical variables. Their primary goal is to enable gradient-based optimization in models with binary latent variables by removing the non-differentiability of direct $\{0,1\}$ sampling. They propose a temperature-controlled reparameterization (the Relaxed Bernoulli/Concrete formulation) that maps logistic/Gumbel-style noise through a temperature-scaled sigmoid/softmax to produce a differentiable approximation in $(0,1)$ whose sharpness approaches a true discrete sample as the temperature decreases.
 
 \textbf{Methodology}
-Formally, instead of sampling $b \sim \text{Bernoulli}(\alpha)$ where $b \in \{0,1\}$, the Relaxed Bernoulli samples continuous values $z \in (0,1)$ using the following reparameterization:
-
+Formally, instead of sampling $b \sim \mathrm{Bernoulli}(\alpha)$ where $b \in \{0,1\}$, the Relaxed Bernoulli samples continuous values $z \in (0,1)$ using the following reparameterization:
 \[
-z = \sigma\left(\frac{\log \alpha - \log(1-\alpha) + \log u - \log(1-u)}{\tau}\right)
+z = \sigma\left(\frac{\log \alpha - \log(1-\alpha) + \log u - \log(1-u)}{\tau}\right),
 \]
-
-where $u \sim \text{Uniform}(0,1)$ and $\sigma(\cdot)$ is the sigmoid function.
+where $u \sim \mathrm{Uniform}(0,1)$ and $\sigma(\cdot)$ is the sigmoid function. Temperature $\tau>0$ controls relaxation sharpness.
 
 \subsection{Hard Concrete Distribution}
 
@@ -92,16 +101,13 @@ where $u \sim \text{Uniform}(0,1)$ and $\sigma(\cdot)$ is the sigmoid function.
 Louizos et al. \cite{louizos2017learning} proposed the Hard Concrete distribution as a practical relaxation for learning sparse neural networks. Their aim is to combine the benefits of a differentiable relaxation during training with exact zeros at inference time so that sparsity can be realized in practice. They introduce a stretched/shifted Concrete relaxation together with a hard-sigmoid/clipping operation that produces exact 0/1 outputs at deployment while remaining differentiable during optimization, enabling effective $L_0$-type regularization via learned binary gates.
 
 \textbf{Methodology}
-Given a uniform random variable \(u \sim \text{Uniform}(0,1)\), samples are generated as:
-
+Given a uniform random variable \(u \sim \mathrm{Uniform}(0,1)\), samples are generated as:
 \[
-\bar{s} = \sigma\left(\frac{\log u - \log(1-u) + \log \alpha}{\beta}\right) \cdot (\zeta - \gamma) + \gamma
+\bar{s} = \sigma\left(\frac{\log u - \log(1-u) + \log \alpha}{\beta}\right) \cdot (\zeta - \gamma) + \gamma,
 \]
-
 \[
-z = \max(0, \min(1, \bar{s}))
+z = \max(0, \min(1, \bar{s})),
 \]
-
 where \(\sigma(\cdot)\) is the sigmoid function, \(\alpha\) is the location parameter, and \(\beta\) is the temperature. Common values are \(\gamma = -0.1\) and \(\zeta = 1.1\).
 
 \subsection{Straight-Through Bernoulli}
@@ -109,10 +115,15 @@ where \(\sigma(\cdot)\) is the sigmoid function, \(\alpha\) is the location para
 The Straight-Through (ST) estimator — a practical technique with roots in earlier work on stochastic neurons (e.g. Bengio et al., 2013) and more formal analyses in later papers (e.g. Cheng et al., 2019) — is designed to reconcile exact discrete forward sampling with usable gradients in backpropagation. Its main objective is to obtain true binary decisions on the forward pass while providing an effective surrogate gradient for parameter updates. The method implements a hard threshold (giving $\{0,1\}$ outputs) during the forward pass and uses a differentiable proxy (or simply copies the upstream gradient) during the backward pass, offering a simple and efficient alternative to continuous relaxations for many practical tasks.
 
 \textbf{Methodology}
-The forward pass samples uniform random variables $z_i\sim\mathcal{U}[0,1]$ and applies a hard threshold:
-$$h_{i}=f(a_{i},z_{i})=\mathbb{1}_{z_{i}>\sigma(a_{i})}$$
-where $\sigma(a_i)$ is the sigmoid-transformed logit parameter. The indicator function $\mathbb{1}_{\cdot}$ produces exact binary outputs $\{0,1\}$. During backward pass, the gradient of the loss $L$ with respect to the logit $a_i$ is approximated by straight-through estimation:
-$$g_{i}=\frac{\partial L}{\partial h_{i}}$$
+The forward pass samples uniform random variables $u_i\sim\mathrm{Uniform}(0,1)$ and applies a hard threshold:
+\[
+h_{i}=f(a_{i},u_{i})=\mathbb{I}\{u_{i}<\sigma(a_{i})\},
+\]
+where $\sigma(a_i)$ is the sigmoid-transformed logit parameter. The indicator function $\mathbb{I}\{\cdot\}$ produces exact binary outputs $\{0,1\}$. During the backward pass, the gradient of the loss $L$ with respect to the logit $a_i$ is typically approximated by a straight-through surrogate, for example:
+\[
+\frac{\partial L}{\partial a_i} \approx \frac{\partial L}{\partial h_i}\cdot\sigma'(a_i),
+\]
+or simply copying $\partial L/\partial h_i$ into the slot for $\partial L/\partial a_i$ depending on the chosen ST variant.
 
 \subsection{Stochastic Times Smooth}
 \textbf{Overview}
@@ -120,25 +131,25 @@ Bengio et al. \cite{bengio2013estimating} introduced the Stochastic Times Smooth
 
 \textbf{Methodology}
 The STS unit generates outputs through a two-step process that separates stochastic sampling from differentiable scaling:
-
 \[
 \begin{aligned}
-p_i &= \sigma(a_i) \\
-b_i &\sim \text{Binomial}(\sqrt{p_i})  \\
-h_i &= b_i \cdot \sqrt{p_i}
+p_i &= \sigma(a_i), \\
+b_i &\sim \mathrm{Bernoulli}(\sqrt{p_i}),  \\
+h_i &= b_i \cdot \sqrt{p_i},
 \end{aligned}
 \]
-
-where $\sigma(\cdot)$ is the sigmoid function, $a_i$ is the pre-activation logit, $b_i$ is a Bernoulli random variable with probability $\sqrt{p_i}$, and $h_i$ is the final output.
+where $\sigma(\cdot)$ is the sigmoid function, $a_i$ is the pre-activation logit, $b_i$ is a Bernoulli random variable with probability $\sqrt{p_i}$, and $h_i$ is the final (scaled) output.
 
 \subsection{Correlated Relaxed Bernoulli}
 \textbf{Overview}
 Lee et al. \cite{lee2022selfsupervision} (and related recent works on correlated relaxed gates) proposed a correlated extension of the relaxed Bernoulli aimed at modeling dependencies between binary decisions. The main motivation is that in many applications the binary variables are not independent (feature selection, structured gates), and naive independent relaxations ignore that structure. They propose to generate correlated relaxed gate vectors by coupling marginal relaxed Bernoulli samples through a Gaussian copula (i.e. sample correlated Gaussian noise, transform to uniforms, then apply the logistic/sigmoid reparameterization), thereby producing a differentiable, multivariate relaxation that captures dependencies between dimensions. 
 
 \textbf{Methodology}
-The key innovation lies in reparameterizing correlated binary variables through a shared noise source. The relaxed gate vector $\tilde{m}_{k}$ is generated using the reparameterization trick:
-$$\tilde{m}_{k}=\sigma\left(\frac{1}{\tau}\left(\log\pi_{k}-\log(1-\pi_{k})+\log U_{k}-\log(1-U_{k})\right)\right)$$
-where $U_{k}\sim\mathcal{U}[0,1]$ is a uniform random variable, $\pi_{k}$ denotes the success probability for dimension $k$, and $\tau$ is a temperature hyperparameter controlling relaxation sharpness. The logarithmic ratio $\log U_{k}-\log(1-U_{k})$ transforms uniform noise into a logistic distribution, enabling differentiable sampling.
+The key innovation lies in reparameterizing correlated binary variables through a shared noise source. The relaxed gate vector $\tilde{z}_{k}$ is generated using the reparameterization trick:
+\[
+\tilde{z}_{k}=\sigma\left(\frac{1}{\tau}\left(\log\pi_{k}-\log(1-\pi_{k})+\log U_{k}-\log(1-U_{k})\right)\right),
+\]
+where $U_{k}\sim\mathrm{Uniform}(0,1)$ is a uniform random variable obtained from a Gaussian copula (to induce correlations), $\pi_{k}$ denotes the success probability for dimension $k$, and $\tau$ is a temperature hyperparameter controlling relaxation sharpness. The logarithmic ratio $\log U_{k}-\log(1-U_{k})$ transforms uniform noise into a logistic-like perturbation and enables differentiable correlated sampling.
 
 \subsection{Invertible Gaussian}
 \textbf{Overview}
@@ -146,11 +157,14 @@ Potapczynski et al. \cite{potapczynski2019invertible} revisit the Gumbel–Softm
 
 \textbf{Methodology}
 Sample Gaussian noise $\varepsilon \sim \mathcal{N}(0, I_{K-1})$. Apply location-scale transformation: 
-    $$y = \mu + \text{diag}(\sigma)\varepsilon$$
+\[
+y = \mu + \mathrm{diag}(\sigma)\varepsilon.
+\]
 Map to simplex via temperature-controlled function 
-    $$\tilde{z} = g(y, \tau)$$
-
-where $\mu \in \mathbb{R}^{K-1}$ and $\sigma \in (0, \infty)^{K-1}$ are parameters, $\tau > 0$ is a temperature hyperparameter, and $g(\cdot, \tau)$ is an invertible smooth function mapping to the simplex $S^{(K-1)} = \{z \in \mathbb{R}^{K-1} : z_k > 0 \text{ and } \sum_{k=1}^{K-1} z_k < 1\}$.
+\[
+\tilde{z} = g(y, \tau),
+\]
+where $\mu \in \mathbb{R}^{K-1}$ and $\sigma \in (0, \infty)^{K-1}$ are parameters, $\tau > 0$ is a temperature hyperparameter, and $g(\cdot, \tau)$ is an invertible smooth function mapping to the simplex $S^{(K-1)} = \{z \in \mathbb{R}^K : z_k > 0, \ \sum_{k=1}^K z_k = 1\}$.
 
 \subsection{Gumbel-Softmax TOP-K}
 
@@ -159,18 +173,18 @@ Kool et al. \cite{kool2019stochastic} introduce the Gumbel-Top-k trick to sample
 
 \textbf{Methodology}
 Given a categorical distribution over $n$ elements with probabilities $p_i$ and log-probabilities $\phi_i = \log p_i$. For each element $i \in \{1, \dots, n\}$, add independent Gumbel noise to its log-probability:
-    \[
-    G_{\phi_i} = \phi_i + G_i, \quad \text{where } G_i \sim \text{Gumbel}(0)
-    \]
-    The Gumbel(0) distribution can be sampled via $G_i = -\log(-\log(U_i))$ with $U_i \sim \text{Uniform}(0,1)$. Identify the indices of the $k$ largest perturbed log-probabilities:
-    \[
-    I_1^*, I_2^*, \dots, I_k^* = \operatorname{argtopk}_{i} G_{\phi_i}
-    \]
-    where $\operatorname{argtopk}$ returns the indices of the $k$ largest values in descending order.The ordered sequence $(I_1^*, I_2^*, \dots, I_k^*)$ constitutes a sample of $k$ elements drawn without replacement from the categorical distribution. The joint probability of a specific ordered sample $(i_1, i_2, \dots, i_k)$ is given by:
-    \[
-    P(I_1^* = i_1, \dots, I_k^* = i_k) = \prod_{j=1}^k \frac{\exp(\phi_{i_j})}{\sum_{l \in N_j} \exp(\phi_l)}
-    \]
-    where $N_j = \{1, \dots, n\} \setminus \{i_1, \dots, i_{j-1}\}$ is the set of remaining elements after the first $j-1$ selections. This corresponds exactly to sequential sampling without replacement, where at each step the probability of selecting a remaining element is proportional to its original probability $p_i$.
+\[
+G_{\phi_i} = \phi_i + G_i, \quad \text{where } G_i \sim \mathrm{Gumbel}(0)
+\]
+The Gumbel(0) distribution can be sampled via $G_i = -\log(-\log(U_i))$ with $U_i \sim \mathrm{Uniform}(0,1)$. Identify the indices of the $k$ largest perturbed log-probabilities:
+\[
+I_1^*, I_2^*, \dots, I_k^* = \operatorname{argtopk}_{i} G_{\phi_i},
+\]
+where $\operatorname{argtopk}$ returns the indices of the $k$ largest values in descending order. The ordered sequence $(I_1^*, I_2^*, \dots, I_k^*)$ constitutes a sample of $k$ elements drawn without replacement from the categorical distribution. The joint probability of a specific ordered sample $(i_1, i_2, \dots, i_k)$ is given by:
+\[
+P(I_1^* = i_1, \dots, I_k^* = i_k) = \prod_{j=1}^k \frac{\exp(\phi_{i_j})}{\sum_{l \in N_j} \exp(\phi_l)},
+\]
+where $N_j = \{1, \dots, n\} \setminus \{i_1, \dots, i_{j-1}\}$ is the set of remaining elements after the first $j-1$ selections. This corresponds exactly to sequential sampling without replacement, where at each step the probability of selecting a remaining element is proportional to its original probability $p_i$.
 
 \subsection{Closed-form Laplace Bridge}
 \textbf{Overview}
@@ -181,35 +195,35 @@ The Laplace Bridge (LB) method provides an analytic mapping between the paramete
 
 The Dirichlet distribution over the probability simplex $\pi \in \mathbb{R}^K$ with parameters $\alpha \in \mathbb{R}^K_+$ has the density:
 \[
-\text{Dir}(\pi \mid \alpha) := \frac{\Gamma\left(\sum_{k=1}^K \alpha_k\right)}{\prod_{k=1}^K \Gamma(\alpha_k)} \prod_{k=1}^K \pi_k^{\alpha_k - 1}
+\mathrm{Dir}(\pi \mid \alpha) := \frac{\Gamma\left(\sum_{k=1}^K \alpha_k\right)}{\prod_{k=1}^K \Gamma(\alpha_k)} \prod_{k=1}^K \pi_k^{\alpha_k - 1},
 \]
 where $\Gamma(\cdot)$ is the gamma function.
 
 Consider the variable $\pi$ obtained by applying the softmax to a vector $z \in \mathbb{R}^K$:
 \[
-\pi_k(z) := \frac{\exp(z_k)}{\sum_{l=1}^K \exp(z_l)}, \quad k = 1, \dots, K
+\pi_k(z) := \frac{\exp(z_k)}{\sum_{l=1}^K \exp(z_l)}, \quad k = 1, \dots, K.
 \]
 Then the density of the Dirichlet distribution, expressed in terms of $z$, must be multiplied by the Jacobian of the transformation:
 \[
-\left|\det \frac{\partial \pi}{\partial z} \right| = \prod_{k=1}^K \pi_k(z)
+\left|\det \frac{\partial \pi}{\partial z} \right| = \prod_{k=1}^K \pi_k(z),
 \]
 which leads to the modified density:
 \[
-\text{Dir}_z(\pi(z) \mid \alpha) := \frac{\Gamma\left(\sum_{k=1}^K \alpha_k\right)}{\prod_{k=1}^K \Gamma(\alpha_k)} \prod_{k=1}^K \pi_k(z)^{\alpha_k}
+\mathrm{Dir}_z(\pi(z) \mid \alpha) := \frac{\Gamma\left(\sum_{k=1}^K \alpha_k\right)}{\prod_{k=1}^K \Gamma(\alpha_k)} \prod_{k=1}^K \pi_k(z)^{\alpha_k}.
 \]
 
 The Laplace Bridge establishes an analytic correspondence between the parameters $\alpha$ of the Dirichlet distribution and the parameters $(\mu, \Sigma)$ of the Gaussian approximation for $z$:
 \[
 \begin{aligned}
 \mu_k &= \log \alpha_k - \frac{1}{K} \sum_{l=1}^K \log \alpha_l, \\
-\Sigma_{kl} &= \delta_{kl} \frac{1}{\alpha_k} - \frac{1}{K} \left( \frac{1}{\alpha_k} + \frac{1}{\alpha_l} - \frac{1}{K} \sum_{u=1}^K \frac{1}{\alpha_u} \right)
+\Sigma_{kl} &= \delta_{kl} \frac{1}{\alpha_k} - \frac{1}{K} \left( \frac{1}{\alpha_k} + \frac{1}{\alpha_l} - \frac{1}{K} \sum_{u=1}^K \frac{1}{\alpha_u} \right),
 \end{aligned}
 \]
 where $\delta_{kl}$ is the Kronecker delta.
 
 The inverse transformation (pseudo-inverse mapping) allows obtaining the Dirichlet parameters from the Gaussian approximation:
 \[
-\alpha_k = \frac{1}{\Sigma_{kk}} \left( 1 - \frac{2}{K} + \frac{2}{K^2} \sum_{l=1}^K e^{\mu_k - \mu_l} \right)^{-1}
+\alpha_k = \frac{1}{\Sigma_{kk}} \left( 1 - \frac{2}{K} + \frac{2}{K^2} \sum_{l=1}^K e^{\mu_k - \mu_l} \right)^{-1}.
 \]
 This equation ignores the off-diagonal elements of $\Sigma$.
 
@@ -221,19 +235,19 @@ Grathwohl et al. \cite{grathwohl2017backpropagation} introduce RELAX, a general 
 \textbf{Methodology}
 RELAX aims to estimate $\nabla_\theta \mathbb{E}_{p(b|\theta)}[f(b)]$, where $b$ is a discrete random variable. The method introduces a relaxed continuous variable $z \sim p(z|\theta)$ and a deterministic mapping $H(z) = b$. This leads to the DLAX estimator:
 \[
-\hat{g}_{\text{DLAX}} = f(b) \nabla_\theta \log p(b|\theta) - c_\phi(z) \nabla_\theta \log p(z|\theta) + \nabla_\theta c_\phi(z)
+\hat{g}_{\text{DLAX}} = f(b) \nabla_\theta \log p(b|\theta) - c_\phi(z) \nabla_\theta \log p(z|\theta) + \nabla_\theta c_\phi(z).
 \]
 However, the DLAX estimator suffers from poor correlation between the log-derivative terms. To address this, RELAX introduces a conditional distribution $\tilde{z} \sim p(z|b, \theta)$, allowing the control variate to be evaluated at both unconditional ($z \sim p(z|\theta)$) and conditional ($\tilde{z} \sim p(z|b, \theta)$) relaxations.
 
 The RELAX estimator is then formulated as:
 \[
-\hat{g}_{\text{RELAX}} = [f(b) - c_\phi(\tilde{z})] \nabla_\theta \log p(b|\theta) + \nabla_\theta c_\phi(z) - \nabla_\theta c_\phi(\tilde{z})
+\hat{g}_{\text{RELAX}} = [f(b) - c_\phi(\tilde{z})] \nabla_\theta \log p(b|\theta) + \nabla_\theta c_\phi(z) - \nabla_\theta c_\phi(\tilde{z}),
 \]
 where $b = H(z)$, $z \sim p(z|\theta)$, and $\tilde{z} \sim p(z|b, \theta)$.
 
 The parameters $\phi$ of the control variate are optimized by minimizing the variance of the gradient estimator. A single-sample unbiased estimate is given by:
 \[
-\hat{g}_\phi = \frac{\partial \hat{g}^2_\theta}{\partial \phi}
+\hat{g}_\phi = \frac{\partial \hat{g}^2_\theta}{\partial \phi}.
 \]
 This enables joint optimization of both the model parameters $\theta$ and the control variate parameters $\phi$ during training, making RELAX a powerful and flexible tool for gradient estimation in models with discrete variables.
 
@@ -246,29 +260,29 @@ Shah et al. \cite{shah2024improving} propose a novel decoupling of forward and b
 
 \textbf{Methodology}
 The decoupled ST-GS uses separate temperature parameters: $\tau^{f}$ for the forward discrete sampling and $\tau^{b}$ for backward gradient approximation. The forward pass performs discrete sampling via argmax:
-
-$$z=\text{one-hot}\left(\text{argmax}\left(\text{softmax}\left(\frac{l+g}{\tau^{f}}\right)\right)\right)$$
-
-where $l$ represents input logits and $g\sim\text{Gumbel}(0,1)$.
+\[
+z=\text{one-hot}\left(\text{argmax}\left(\text{softmax}\left(\frac{l+g}{\tau^{f}}\right)\right)\right),
+\]
+where $l$ represents input logits and $g\sim\mathrm{Gumbel}(0,1)$.
 
 The backward pass computes smooth gradients through a differentiable relaxation:
-
-$$\frac{\partial\mathcal{L}}{\partial l}\approx\frac{\partial\mathcal{L}}{\partial z}\frac{\partial\hat{z}^{b}}{\partial l},\quad\hat{z}^{b}=\text{softmax}\left(\frac{l+g}{\tau^{b}}\right)$$
-
+\[
+\frac{\partial\mathcal{L}}{\partial l}\approx\frac{\partial\mathcal{L}}{\partial z}\frac{\partial\hat{z}^{b}}{\partial l},\quad\hat{z}^{b}=\text{softmax}\left(\frac{l+g}{\tau^{b}}\right).
+\]
 The optimal configuration uses $\tau^{f}<\tau^{b}$, preserving discrete structure in activations while ensuring stable optimization dynamics.
 
 \subsection{REBAR Relaxation}
 
 \textbf{Overview} The REBAR \cite{tucker2017rebar} method combines the low-variance but biased Concrete relaxation with the unbiased but high-variance REINFORCE estimator through a novel control variate.
 
-\textbf{Methodology} For binary random variables $b \sim \text{Bernoulli}(\theta)$, we want to estimate:
+\textbf{Methodology} For binary random variables $b \sim \mathrm{Bernoulli}(\theta)$, we want to estimate:
 \[
-\nabla_\theta \mathbb{E}_{p(b)}[f(b)] = \mathbb{E}_{p(b)}\left[f(b)\nabla_\theta \log p(b)\right]
+\nabla_\theta \mathbb{E}_{p(b)}[f(b)] = \mathbb{E}_{p(b)}\left[f(b)\nabla_\theta \log p(b)\right].
 \]
 
 Parameterize $b = H(z)$ where $z$ are Logistic random variables:
 \[
-z = g(u, \theta) = \log\frac{\theta}{1-\theta} + \log\frac{u}{1-u}, \quad u \sim \text{Uniform}(0,1)
+z = g(u, \theta) = \log\frac{\theta}{1-\theta} + \log\frac{u}{1-u}, \quad u \sim \mathrm{Uniform}(0,1).
 \]
 Replace hard threshold $H(z)$ with sigmoid relaxation $\sigma_\lambda(z) = \sigma(z/\lambda)$.
 
@@ -281,13 +295,13 @@ The REBAR gradient estimator is:
 \[
 \left.
 + \eta\nabla_\theta f(\sigma_\lambda(z)) - \eta\nabla_\theta f(\sigma_\lambda(\tilde{z}))
-\right]
+\right],
 \]
 where:
 \begin{itemize}
-    \item $z = g(u, \theta)$
-    \item $\tilde{z} = \tilde{g}(v, H(z), \theta)$ is the reparameterization of $p(z|b)$
-    \item $\eta$ is a scaling parameter optimized to minimize variance
+    \item $z = g(u, \theta)$,
+    \item $\tilde{z} = \tilde{g}(v, H(z), \theta)$ is the reparameterization of $p(z|b)$,
+    \item $\eta$ is a scaling parameter optimized to minimize variance.
 \end{itemize}
 
 The REBAR estimator remains unbiased for any temperature parameter $\lambda > 0$, ensuring mathematical correctness regardless of the relaxation tightness. REBAR exhibits an important theoretical connection to MuProp: as $\lambda \to \infty$, the REBAR estimator converges to the MuProp estimator without its linear term, providing a smooth interpolation between these approaches.
@@ -341,7 +355,6 @@ On Taxi-v3, RELAX clearly dominates both baselines in Figure~\ref{fig_cart_pole_
 \hfill
 \includegraphics[width=0.45\columnwidth]{rl_bench_img/taxi-v3.png}
 \caption{Comparison of A2C, REINFORCE, and RELAX algorithms on the Cart-pole (left) and Taxi-v3 (right) benchmarks. A2C employs an actor-critic architecture for reduced gradient variance, REINFORCE uses a pure policy gradient approach, and RELAX leverages relaxation techniques for improved convergence and stability in reinforcement learning tasks}
-
 \label{fig_cart_pole_taxi}
 \end{figure}
 
