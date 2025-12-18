@@ -44,6 +44,21 @@ Distribution Classes
    :undoc-members:
    :show-inheritance:
 
+.. autoclass:: relaxit.distributions.GeneralizedGumbelSoftmax.GeneralizedGumbelSoftmax
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. autoclass:: relaxit.distributions.DecoupledStraightThroughGumbelSoftmax.DecoupledStraightThroughGumbelSoftmax
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. autoclass:: relaxit.distributions.RebarRelaxation.RebarRelaxation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Utility Modules
 ---------------
 

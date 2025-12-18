@@ -6,6 +6,7 @@ from .InvertibleGaussian import InvertibleGaussian
 from .LogisticNormalSoftmax import LogisticNormalSoftmax
 from .StochasticTimesSmooth import StochasticTimesSmooth
 from .StraightThroughBernoulli import StraightThroughBernoulli
+from .RebarRelaxation import RebarRelaxation
 from .DecoupledStraightThroughGumbelSoftmax import DecoupledStraightThroughGumbelSoftmax
 from .GeneralizedGumbelSoftmax import GeneralizedGumbelSoftmax, GeneralizedGumbelSoftmaxNP
 from .RebarRelaxation import RebarRelaxation
@@ -20,6 +21,7 @@ __all__ = [
     "LogisticNormalSoftmax",
     "StochasticTimesSmooth",
     "StraightThroughBernoulli",
+    "RebarRelaxation"
     "DecoupledStraightThroughGumbelSoftmax",
     "GeneralizedGumbelSoftmax",
     "GeneralizedGumbelSoftmaxNP",
