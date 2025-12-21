@@ -83,21 +83,34 @@ In this project we implement different alternatives to it.
 
 ## 🛠️ Install
 
-### Install via pip
+### For Production
 ```bash
-pip install relaxit
+uv pip install relaxit
 ```
 
-### Install from source
-```bash
-pip install git+https://github.com/intsystems/relaxit
-```
-
-### Install via Git clone
+### For Development
 ```bash
 git clone https://github.com/intsystems/relaxit
 cd relaxit
-pip install -e .
+uv venv # create venv
+source .venv/bin/activate  # activate venv
+uv sync # install all the dependencies
+uv pip install -e .  # make the relaxit package editable
+```
+
+To run tests:
+```bash
+uv run pytest tests/
+```
+
+To run Python scripts:
+```bash
+uv run python demo/vae_hard_concrete.py
+```
+
+To run notebooks:
+```bash
+uv run jupyter lab
 ```
 
 ## 🚀 Quickstart 
