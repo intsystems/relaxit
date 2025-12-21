@@ -9,7 +9,7 @@ parameters by estimating the policy gradient using full episode trajectories.
 import torch
 import torch.nn as nn
 from torch.distributions import Categorical
-import gym
+import gymnasium as gym
 
 
 class REINFORCE:

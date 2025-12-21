@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "relaxit"
+dynamic = ["version"]
+description = "Relaxit: A Python Library for Optimizing Discrete Probability Distributions in Neural Networks"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Daniil Dorin"},
+    {name = "Igor Ignashin"},
+    {name = "Nikita Kiselev"},
+    {name = "Andrey Veprikov"},
+    {name = "Vladislav Minashkin"},
+    {name = "Papay Ivan"},
+    {name = "Meshkov Vlad"},
+    {name = "Stepanov Ilya"},
+]
+dependencies = [
+    "torch>=2.8.0",
+    "pyro-ppl>=1.9.1"
+]
+
+[project.urls]
+Homepage = "https://github.com/intsystems/relaxit"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.dynamic]
+version = {attr = "relaxit._version.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[dependency-groups]
+dev = [
+    "gymnasium>=1.1.1",
+    "jupyter>=1.1.1",
+    "matplotlib>=3.9.4",
+    "networkx>=3.2.1",
+    "pillow>=11.3.0",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "pytest-xdist>=3.8.0",
+    "seaborn>=0.13.2",
+    "torchvision>=0.23.0",
+    "tqdm>=4.67.1",
+]

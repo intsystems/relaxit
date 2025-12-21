@@ -9,7 +9,7 @@ in policy gradient estimates while maintaining bias-free updates.
 import torch
 import torch.nn as nn
 from torch.distributions import Categorical
-import gym
+import gymnasium as gym
 
 
 class A2C(nn.Module):
