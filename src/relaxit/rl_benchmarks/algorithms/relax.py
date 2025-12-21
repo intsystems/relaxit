@@ -14,7 +14,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions import Categorical
-import gym
+import gymnasium as gym
 
 
 def get_z_tilde_z_samples_params(logits):
