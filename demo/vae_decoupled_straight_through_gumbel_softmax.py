@@ -255,7 +255,7 @@ if __name__ == "__main__":
                 device
             )
             indices = torch.randint(
-                0, model.latent_one_hot_dim, (64, model.latent_cat_dim)
+                0, model.latent_one_hot_dim, (64, model.latent_cat_dim), device=device
             )
             sample.scatter_(2, indices.unsqueeze(2), 1.0)
 

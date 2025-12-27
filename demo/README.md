@@ -3,24 +3,8 @@ This repository contains our demo code for various experiments. The main demo co
 
 ## Installation <a name="installation"></a>
 
-To use this demo code, you need to have Python and the required packages installed on your computer.
+To use this demo code, check out README in the root directory of this repository for installation instructions.
 
-```bash
-# Clone the repository:
-git clone https://github.com/intsystems/relaxit.git
-
-# Navigate to the repository directory:
-cd relaxit/demo
-
-# Create Virtual Environment with Conda:
-conda create --name relaxit-demo python=3.10
-
-# Activate the conda environment:
-conda activate relaxit-demo
-
-# Install Dependencies
-pip install -r requirements.txt
-```
 ## Additional experiments<a name="experiments"></a>
 
 For additional demo experiments, we have implemented Variational Autoencoders (VAEs) with different latent discrete distributions from **Just Relax It**. These implementations are adapted from the [PyTorch](https://github.com/pytorch/examples/tree/main/vae) examples repository.
@@ -28,34 +12,37 @@ For additional demo experiments, we have implemented Variational Autoencoders (V
    To run the additional demo code with VAEs, you need to train all the models and save their results. Execute the following commands:
     ```bash
     # VAE with Correlated Bernoulli latent space
-    python vae_correlated_bernoulli.py
+    uv run python vae_correlated_bernoulli.py
 
     # VAE with Gaussian Bernoulli latent space
-    python vae_gaussian_bernoulli.py
+    uv run python vae_gaussian_bernoulli.py
 
     # VAE with Gumbel-Softmax top-K latent space
-    python vae_gumbel_softmax_topk.py
+    uv run python vae_gumbel_softmax_topk.py
 
     # VAE with Hard Concrete latent space
-    python vae_hard_concrete.py
+    uv run python vae_hard_concrete.py
     
     # VAE with Invertible Gaussian latent space
-    python vae_invertible_gaussian.py
+    uv run python vae_invertible_gaussian.py
 
     # VAE with Stochastic Times Smooth latent space
-    python vae_stochastic_times_smooth.py
+    uv run python vae_stochastic_times_smooth.py
 
     # VAE with Straight Through Bernoullii latent space
-    python vae_straight_through_bernoulli.py
+    uv run python vae_straight_through_bernoulli.py
 
     # VAE with Rebar Relaxation Bernoullii latent space
-    python vae_rebar_relaxation.py
+    uv run python vae_rebar_relaxation.py
 
     # VAE with Poisson latent space
-    python vae_generalized_gumbel_poisson.py
+    uv run python vae_generalized_gumbel_poisson.py
 
     # VAE with Geometric latent space
-    python vae_generalized_gumbel_geometric.py
+    uv run python vae_generalized_gumbel_geometric.py
+
+    # VAE with Decoupled Straigt-Through Gumbel Softmax latent space
+    uv run python vae_decoupled_straight_through_gumbel_softmax.py.py
     ```
 2. **View the results:**
     After completing the training and testing of all the models, you can find the results of sampling and reconstruction methods in the directory `results`.
@@ -67,5 +54,3 @@ Moreover, we conducted experiments with Laplace Bridge between LogisticNormal an
 These experiments aim to find the best parameters to make the distributions nearly identical on the simplex. The experiments can be found in the notebook `laplace-bridge.ipynb`.
 
 Furthermore, the Reinforce algorithm is applied in the [Acrobot environment](https://www.gymlibrary.dev/environments/classic_control/acrobot/). Detailed experiments can be viewed in the notebook `reinforce.ipynb`. A script `reinforce.py` can also be used for training.
-
-

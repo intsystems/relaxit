@@ -27,3 +27,18 @@
 .wy-side-nav-search>a img.logo, .wy-side-nav-search .wy-dropdown>a img.logo {
     max-width: 40%;
 }
+
+.wy-nav-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+.wy-nav-content h1, .wy-nav-content h2, .wy-nav-content h3, .wy-nav-content h4, .wy-nav-content h5, .wy-nav-content h6 {
+    word-break: break-all;
+}
+
+.wy-nav-content .highlight, .wy-nav-content pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
