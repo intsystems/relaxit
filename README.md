@@ -81,23 +81,48 @@ In this project we implement different alternatives to it.
 - [x] [Decoupled Straight-Through Gumbel-Softmax](https://github.com/intsystems/relaxit/blob/main/src/relaxit/distributions/DecoupledStraightThroughGumbelSoftmax.py), also see [📝 paper](https://arxiv.org/abs/2410.13331)
 - [x] [RELAX](https://github.com/intsystems/relaxit/blob/main/rl_benchmarks/algorithms/relax.py), also see [📝 paper](https://arxiv.org/abs/2110.11960)
 
-## 🛠️ Install
+## 🛠️ Install Using `uv` (Recommended)
 
-### Install via pip
+### For Production
 ```bash
-pip install relaxit
+uv pip install relaxit
 ```
 
-### Install from source
-```bash
-pip install git+https://github.com/intsystems/relaxit
-```
-
-### Install via Git clone
+### For Development
 ```bash
 git clone https://github.com/intsystems/relaxit
 cd relaxit
-pip install -e .
+uv venv                    # create venv
+source .venv/bin/activate  # activate venv
+uv sync                    # install all the dependencies
+uv pip install -e .        # make the relaxit package editable
+```
+
+To run tests:
+```bash
+uv run pytest tests/
+```
+
+To run Python scripts:
+```bash
+uv run python demo/vae_hard_concrete.py
+```
+
+To run notebooks:
+```bash
+uv run jupyter lab
+```
+
+## ⚒️ Install Using `pip`
+
+### For Production
+```bash
+pip install -r requirements.txt
+```
+
+### For Development
+```bash
+pip install -r requirements-dev.txt
 ```
 
 ## 🚀 Quickstart 
