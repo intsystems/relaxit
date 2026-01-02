@@ -12,7 +12,6 @@ import torch.nn as nn
 
 import gymnasium as gym
 import torch.optim as optim
-from matplotlib import pylab as plt
 
 import relaxit
 
