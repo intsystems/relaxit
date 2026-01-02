@@ -17,6 +17,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install torch
+          pip install gymnasium
           pip install pyro-ppl
           pip install -U pytest pytest-cov
           ls ./
